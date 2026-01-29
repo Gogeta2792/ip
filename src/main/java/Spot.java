@@ -14,6 +14,9 @@ public class Spot {
     private static final String CMD_BYE = "bye";
     private static final String CMD_MARK = "mark";
     private static final String CMD_UNMARK = "unmark";
+    private static final String CMD_TODO = "todo";
+    private static final String CMD_DEADLINE = "deadline";
+    private static final String CMD_EVENT = "event";
 
     // Fixed logo displayed on startup
     private static final String LOGO =
@@ -64,6 +67,9 @@ public class Spot {
                 case UNMARK:
                     handleMarkCommand(tasks, parsedCommand, borderLine, rightAlignFormat);
                     break;
+                case TODO:
+                case DEADLINE:
+                case EVENT:
                 case ADD:
                     handleAddTaskCommand(tasks, parsedCommand, borderLine, rightAlignFormat);
                     break;
@@ -93,7 +99,22 @@ public class Spot {
             return new ParsedCommand(type, argument);
         }
 
-        // Otherwise, anything else is treated as a new task description
+        if (lowerCommand.equals(CMD_TODO)) {
+            String argument = parts.length > 1 ? parts[1].trim() : "";
+            return new ParsedCommand(CommandType.TODO, argument);
+        }
+
+        if (lowerCommand.equals(CMD_DEADLINE)) {
+            String argument = parts.length > 1 ? parts[1].trim() : "";
+            return new ParsedCommand(CommandType.DEADLINE, argument);
+        }
+
+        if (lowerCommand.equals(CMD_EVENT)) {
+            String argument = parts.length > 1 ? parts[1].trim() : "";
+            return new ParsedCommand(CommandType.EVENT, argument);
+        }
+
+        // Otherwise, anything else is treated as a new task description (todo)
         return new ParsedCommand(CommandType.ADD, trimmedInput);
     }
 
@@ -105,7 +126,7 @@ public class Spot {
         for (int i = 0; i < tasks.size(); i++) {
             Task task = tasks.get(i);
             String statusIcon = task.isDone() ? STATUS_DONE_ICON : STATUS_NOT_DONE_ICON;
-            String taskLine = (i + 1) + "." + statusIcon + " " + task.getDescription();
+            String taskLine = (i + 1) + "." + task.getTypeIcon() + statusIcon + " " + task.getDisplayString();
             System.out.println(String.format(rightAlignFormat, taskLine));
         }
 
@@ -138,7 +159,7 @@ public class Spot {
         Task task = tasks.get(taskIndex);
         task.setDone(markAsDone);
         String statusIcon = task.isDone() ? STATUS_DONE_ICON : STATUS_NOT_DONE_ICON;
-        String taskLine = statusIcon + " " + task.getDescription();
+        String taskLine = task.getTypeIcon() + statusIcon + " " + task.getDisplayString();
 
         if (markAsDone) {
             printFramedTwoLineMessage(
@@ -162,12 +183,52 @@ public class Spot {
                                              ParsedCommand parsedCommand,
                                              String borderLine,
                                              String rightAlignFormat) {
-        String description = parsedCommand.argument;
-        Task newTask = new Task(description);
+        Task newTask = createTask(parsedCommand);
+        if (newTask == null) {
+            printFramedMessage(borderLine, rightAlignFormat,
+                    "Spot: I need more details. Use: deadline <description> /by <date>, or event <description> /from <start> /to <end>");
+            return;
+        }
         tasks.add(newTask);
 
-        String message = "Spot: I've added: " + description;
-        printFramedMessage(borderLine, rightAlignFormat, message);
+        String statusIcon = newTask.isDone() ? STATUS_DONE_ICON : STATUS_NOT_DONE_ICON;
+        String taskLine = newTask.getTypeIcon() + statusIcon + " " + newTask.getDisplayString();
+        String countLine = "Now you have " + tasks.size() + " task" + (tasks.size() == 1 ? "" : "s") + " in the list.";
+        printFramedThreeLineMessage(borderLine, rightAlignFormat,
+                "Got it. I've added this task:",
+                taskLine,
+                countLine);
+    }
+
+    private static Task createTask(ParsedCommand parsedCommand) {
+        String argument = parsedCommand.argument == null ? "" : parsedCommand.argument;
+        switch (parsedCommand.type) {
+            case TODO:
+            case ADD:
+                return argument.isEmpty() ? null : new Todo(argument);
+            case DEADLINE: {
+                int byIndex = argument.indexOf(" /by ");
+                if (byIndex < 0) {
+                    return null;
+                }
+                String description = argument.substring(0, byIndex).trim();
+                String by = argument.substring(byIndex + 5).trim();
+                return description.isEmpty() || by.isEmpty() ? null : new Deadline(description, by);
+            }
+            case EVENT: {
+                int fromIndex = argument.indexOf(" /from ");
+                int toIndex = argument.indexOf(" /to ");
+                if (fromIndex < 0 || toIndex < 0 || toIndex <= fromIndex) {
+                    return null;
+                }
+                String description = argument.substring(0, fromIndex).trim();
+                String from = argument.substring(fromIndex + 7, toIndex).trim();
+                String to = argument.substring(toIndex + 5).trim();
+                return description.isEmpty() || from.isEmpty() || to.isEmpty() ? null : new Event(description, from, to);
+            }
+            default:
+                return null;
+        }
     }
 
     //Utility method for chatbox "box" formatting
@@ -184,6 +245,21 @@ public class Spot {
                 borderLine + "\n\n"
                         + String.format(rightAlignFormat, header) + "\n"
                         + String.format(rightAlignFormat, content) + "\n"
+                        + borderLine + "\n"
+        );
+    }
+
+    // Prints three-line messages (header + content + footer) inside the chatbox "box"
+    private static void printFramedThreeLineMessage(String borderLine,
+                                                    String rightAlignFormat,
+                                                    String header,
+                                                    String content,
+                                                    String footer) {
+        System.out.println(
+                borderLine + "\n\n"
+                        + String.format(rightAlignFormat, "Spot: " + header) + "\n"
+                        + String.format(rightAlignFormat, content) + "\n"
+                        + String.format(rightAlignFormat, footer) + "\n"
                         + borderLine + "\n"
         );
     }
@@ -208,6 +284,9 @@ public class Spot {
         LIST,
         MARK,
         UNMARK,
+        TODO,
+        DEADLINE,
+        EVENT,
         ADD,
         BYE
     }
@@ -223,26 +302,83 @@ public class Spot {
         }
     }
 
-    // Task
-    private static class Task {
+    // Task (base)
+    private abstract static class Task {
         private final String description;
         private boolean done;
 
-        private Task(String description) {
+        Task(String description) {
             this.description = description;
             this.done = false;
         }
 
-        private String getDescription() {
+        abstract String getTypeIcon();
+
+        String getDescription() {
             return description;
         }
 
-        private boolean isDone() {
+        String getDisplayString() {
+            return getDescription();
+        }
+
+        boolean isDone() {
             return done;
         }
 
-        private void setDone(boolean done) {
+        void setDone(boolean done) {
             this.done = done;
+        }
+    }
+
+    private static class Todo extends Task {
+        private Todo(String description) {
+            super(description);
+        }
+
+        @Override
+        String getTypeIcon() {
+            return "[T]";
+        }
+    }
+
+    private static class Deadline extends Task {
+        private final String by;
+
+        private Deadline(String description, String by) {
+            super(description);
+            this.by = by;
+        }
+
+        @Override
+        String getTypeIcon() {
+            return "[D]";
+        }
+
+        @Override
+        String getDisplayString() {
+            return getDescription() + " (by: " + by + ")";
+        }
+    }
+
+    private static class Event extends Task {
+        private final String from;
+        private final String to;
+
+        private Event(String description, String from, String to) {
+            super(description);
+            this.from = from;
+            this.to = to;
+        }
+
+        @Override
+        String getTypeIcon() {
+            return "[E]";
+        }
+
+        @Override
+        String getDisplayString() {
+            return getDescription() + " (from: " + from + " to: " + to + ")";
         }
     }
 }
