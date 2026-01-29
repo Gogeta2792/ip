@@ -1,4 +1,6 @@
 list
+blah
+help
 mark
 todo
 deadline submit report

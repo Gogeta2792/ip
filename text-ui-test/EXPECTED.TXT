@@ -11,7 +11,27 @@ ____________________________________________________________
 
 ____________________________________________________________
 
-                                   Spot: Here are your tasks
+                       Spot: Here are your tasks, good luck!
+
+____________________________________________________________
+
+____________________________________________________________
+
+Spot: I don't know what you mean :( Type "help" to view a list of functions.
+____________________________________________________________
+
+____________________________________________________________
+
+                   Spot: Here are the commands I understand:
+                                                            
+                    list                    – show all tasks
+                   todo <description>      – add a todo task
+                deadline <desc> /by <date>  – add a deadline
+        event <desc> /from <start> /to <end>  – add an event
+               mark <number>           – mark a task as done
+           unmark <number>         – mark a task as not done
+                    help                    – show this list
+             bye                     – exit (See you later!)
 
 ____________________________________________________________
 
@@ -22,12 +42,12 @@ ____________________________________________________________
 
 ____________________________________________________________
 
-Spot: I need more details. Use: deadline <description> /by <date>, or event <description> /from <start> /to <end>
+                              Spot: You can't todo nothing..
 ____________________________________________________________
 
 ____________________________________________________________
 
-Spot: I need more details. Use: deadline <description> /by <date>, or event <description> /from <start> /to <end>
+Spot: Deadline must have a description and /by <date>. Example: deadline submit report /by 2025-02-01
 ____________________________________________________________
 
 ____________________________________________________________
@@ -53,7 +73,7 @@ ____________________________________________________________
 
 ____________________________________________________________
 
-                                   Spot: Here are your tasks
+                       Spot: Here are your tasks, good luck!
                                           1.[T][ ] read book
                        2.[D][ ] return book (by: 2025-02-01)
                3.[E][ ] team meeting (from: Mon 2pm to: 3pm)
@@ -80,7 +100,7 @@ ____________________________________________________________
 
 ____________________________________________________________
 
-                                   Spot: Here are your tasks
+                       Spot: Here are your tasks, good luck!
                                           1.[T][ ] read book
                        2.[D][X] return book (by: 2025-02-01)
                3.[E][ ] team meeting (from: Mon 2pm to: 3pm)

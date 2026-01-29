@@ -17,6 +17,7 @@ public class Spot {
     private static final String CMD_TODO = "todo";
     private static final String CMD_DEADLINE = "deadline";
     private static final String CMD_EVENT = "event";
+    private static final String CMD_HELP = "help";
 
     // Fixed logo displayed on startup
     private static final String LOGO =
@@ -73,6 +74,13 @@ public class Spot {
                 case ADD:
                     handleAddTaskCommand(tasks, parsedCommand, borderLine, rightAlignFormat);
                     break;
+                case HELP:
+                    handleHelpCommand(borderLine, rightAlignFormat);
+                    break;
+                case UNKNOWN:
+                    printFramedMessage(borderLine, rightAlignFormat,
+                            "Spot: I don't know what you mean :( Type \"help\" to view a list of functions.");
+                    break;
                 default:
                     break;
             }
@@ -87,6 +95,10 @@ public class Spot {
 
         if (trimmedInput.equalsIgnoreCase(CMD_LIST)) {
             return new ParsedCommand(CommandType.LIST, null);
+        }
+
+        if (trimmedInput.equalsIgnoreCase(CMD_HELP)) {
+            return new ParsedCommand(CommandType.HELP, null);
         }
 
         String[] parts = trimmedInput.split("\\s+", 2);
@@ -114,14 +126,14 @@ public class Spot {
             return new ParsedCommand(CommandType.EVENT, argument);
         }
 
-        // Otherwise, anything else is treated as a new task description (todo)
-        return new ParsedCommand(CommandType.ADD, trimmedInput);
+        // Unknown command
+        return new ParsedCommand(CommandType.UNKNOWN, null);
     }
 
     //List command
     private static void handleListCommand(List<Task> tasks, String borderLine, String rightAlignFormat) {
         System.out.println(borderLine + "\n");
-        System.out.println(String.format(rightAlignFormat, "Spot: Here are your tasks"));
+        System.out.println(String.format(rightAlignFormat, "Spot: Here are your tasks, good luck!"));
 
         for (int i = 0; i < tasks.size(); i++) {
             Task task = tasks.get(i);
@@ -130,6 +142,27 @@ public class Spot {
             System.out.println(String.format(rightAlignFormat, taskLine));
         }
 
+        System.out.println("\n" + borderLine + "\n");
+    }
+
+    // Help command – shows list of available functions
+    private static void handleHelpCommand(String borderLine, String rightAlignFormat) {
+        String[] lines = {
+            "Spot: Here are the commands I understand:",
+            "",
+            "  list                    – show all tasks",
+            "  todo <description>      – add a todo task",
+            "  deadline <desc> /by <date>  – add a deadline",
+            "  event <desc> /from <start> /to <end>  – add an event",
+            "  mark <number>           – mark a task as done",
+            "  unmark <number>         – mark a task as not done",
+            "  help                    – show this list",
+            "  bye                     – exit (See you later!)"
+        };
+        System.out.println(borderLine + "\n");
+        for (String line : lines) {
+            System.out.println(String.format(rightAlignFormat, line));
+        }
         System.out.println("\n" + borderLine + "\n");
     }
 
@@ -183,10 +216,20 @@ public class Spot {
                                              ParsedCommand parsedCommand,
                                              String borderLine,
                                              String rightAlignFormat) {
+        // Error empty todo description
+        if (parsedCommand.type == CommandType.TODO) {
+            String arg = parsedCommand.argument == null ? "" : parsedCommand.argument;
+            if (arg.isEmpty()) {
+                printFramedMessage(borderLine, rightAlignFormat,
+                        "Spot: You can't todo nothing..");
+                return;
+            }
+        }
+
         Task newTask = createTask(parsedCommand);
         if (newTask == null) {
-            printFramedMessage(borderLine, rightAlignFormat,
-                    "Spot: I need more details. Use: deadline <description> /by <date>, or event <description> /from <start> /to <end>");
+            String errorMsg = getAddTaskErrorMessage(parsedCommand.type);
+            printFramedMessage(borderLine, rightAlignFormat, "Spot: " + errorMsg);
             return;
         }
         tasks.add(newTask);
@@ -198,6 +241,18 @@ public class Spot {
                 "Got it. I've added this task:",
                 taskLine,
                 countLine);
+    }
+
+    // Switch case for type error messages
+    private static String getAddTaskErrorMessage(CommandType type) {
+        switch (type) {
+            case DEADLINE:
+                return "Deadline must have a description and /by <date>. Example: deadline submit report /by 2025-02-01";
+            case EVENT:
+                return "Event must have a description, /from <start>, and /to <end>. Example: event team meeting /from Mon 2pm /to 3pm";
+            default:
+                return "I need more details. Use: deadline <description> /by <date>, or event <description> /from <start> /to <end>";
+        }
     }
 
     private static Task createTask(ParsedCommand parsedCommand) {
@@ -236,7 +291,7 @@ public class Spot {
         System.out.println(borderLine + "\n\n" + String.format(rightAlignFormat, message) + "\n" + borderLine + "\n");
     }
 
-    // Prints two-line messages (header + content) inside the chatbox "box"
+    // Prints two-line messages (header[Spot message] + content[Task description]) inside the chatbox "box"
     private static void printFramedTwoLineMessage(String borderLine,
                                                   String rightAlignFormat,
                                                   String header,
@@ -249,7 +304,7 @@ public class Spot {
         );
     }
 
-    // Prints three-line messages (header + content + footer) inside the chatbox "box"
+    // Prints three-line messages (header[Spot message] + content[Task description] + footer[Task count]) inside the chatbox "box"
     private static void printFramedThreeLineMessage(String borderLine,
                                                     String rightAlignFormat,
                                                     String header,
@@ -288,7 +343,9 @@ public class Spot {
         DEADLINE,
         EVENT,
         ADD,
-        BYE
+        BYE,
+        HELP,
+        UNKNOWN
     }
 
     // Simple value object containing a parsed command and its argument
@@ -302,7 +359,7 @@ public class Spot {
         }
     }
 
-    // Task (base)
+    // Task
     private abstract static class Task {
         private final String description;
         private boolean done;
@@ -331,6 +388,7 @@ public class Spot {
         }
     }
 
+    // Todo
     private static class Todo extends Task {
         private Todo(String description) {
             super(description);
@@ -342,6 +400,7 @@ public class Spot {
         }
     }
 
+    // Deadline
     private static class Deadline extends Task {
         private final String by;
 
@@ -361,6 +420,7 @@ public class Spot {
         }
     }
 
+    // Event
     private static class Event extends Task {
         private final String from;
         private final String to;

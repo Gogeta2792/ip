@@ -24,4 +24,4 @@ As per [Automating the testing of text UIs](https://se-education.org/guides/tuto
 - **bye**: Farewell message
 - **Error cases**: Unknown command (prompts to type `help`), `mark` without number, empty `todo`, invalid `deadline` (missing `/by`)
 
-When new features are added, extend `input.txt` with more commands and refresh `EXPECTED.TXT` from the new `ACTUAL.TXT` so the tests stay up to date.
+When you add new features, extend `input.txt` with more commands and refresh `EXPECTED.TXT` from the new `ACTUAL.TXT` so the tests stay up to date.
