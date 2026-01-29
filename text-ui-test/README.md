@@ -17,11 +17,12 @@ As per [Automating the testing of text UIs](https://se-education.org/guides/tuto
 
 ## What is tested
 
-- **list**: Empty list and list with tasks
-- **help**: Help command shows list of functions
-- **todo**, **deadline**, **event**: Adding tasks and confirmation messages
-- **mark** / **unmark**: Marking tasks done and undone
-- **bye**: Farewell message
-- **Error cases**: Unknown command (prompts to type `help`), `mark` without number, empty `todo`, invalid `deadline` (missing `/by`)
+- list: Empty list and list with tasks
+- help: Help command shows list of functions
+- todo, deadline, event: Adding tasks and confirmation messages
+- mark / unmark: Marking tasks done and undone
+- delete: Removing a task from the list (and error cases: no number, invalid index)
+- bye: Farewell message
+- Error cases: Unknown command (prompts to type `help`), mark/delete without number, empty todo, invalid deadline (missing /by), delete with non-existent task number
 
 When you add new features, extend `input.txt` with more commands and refresh `EXPECTED.TXT` from the new `ACTUAL.TXT` so the tests stay up to date.

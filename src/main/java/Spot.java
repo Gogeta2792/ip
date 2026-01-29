@@ -17,6 +17,7 @@ public class Spot {
     private static final String CMD_TODO = "todo";
     private static final String CMD_DEADLINE = "deadline";
     private static final String CMD_EVENT = "event";
+    private static final String CMD_DELETE = "delete";
     private static final String CMD_HELP = "help";
 
     // Fixed logo displayed on startup
@@ -68,6 +69,9 @@ public class Spot {
                 case UNMARK:
                     handleMarkCommand(tasks, parsedCommand, borderLine, rightAlignFormat);
                     break;
+                case DELETE:
+                    handleDeleteCommand(tasks, parsedCommand, borderLine, rightAlignFormat);
+                    break;
                 case TODO:
                 case DEADLINE:
                 case EVENT:
@@ -109,6 +113,11 @@ public class Spot {
             String argument = parts.length > 1 ? parts[1].trim() : "";
             CommandType type = lowerCommand.equals(CMD_MARK) ? CommandType.MARK : CommandType.UNMARK;
             return new ParsedCommand(type, argument);
+        }
+
+        if (lowerCommand.equals(CMD_DELETE)) {
+            String argument = parts.length > 1 ? parts[1].trim() : "";
+            return new ParsedCommand(CommandType.DELETE, argument);
         }
 
         if (lowerCommand.equals(CMD_TODO)) {
@@ -156,6 +165,7 @@ public class Spot {
             "  event <desc> /from <start> /to <end>  – add an event",
             "  mark <number>           – mark a task as done",
             "  unmark <number>         – mark a task as not done",
+            "  delete <number>        – remove a task from the list",
             "  help                    – show this list",
             "  bye                     – exit (See you later!)"
         };
@@ -209,6 +219,37 @@ public class Spot {
                     taskLine
             );
         }
+    }
+
+    // Delete task
+    private static void handleDeleteCommand(List<Task> tasks,
+                                            ParsedCommand parsedCommand,
+                                            String borderLine,
+                                            String rightAlignFormat) {
+        int oneBasedIndex;
+        try {
+            oneBasedIndex = Integer.parseInt(parsedCommand.argument == null ? "" : parsedCommand.argument);
+        } catch (NumberFormatException e) {
+            printFramedMessage(borderLine, rightAlignFormat,
+                    "Spot: You have to give me the task number!");
+            return;
+        }
+
+        int taskIndex = oneBasedIndex - 1;
+        if (taskIndex < 0 || taskIndex >= tasks.size()) {
+            printFramedMessage(borderLine, rightAlignFormat,
+                    "Spot: That task doesn't exist!");
+            return;
+        }
+
+        Task removed = tasks.remove(taskIndex);
+        String statusIcon = removed.isDone() ? STATUS_DONE_ICON : STATUS_NOT_DONE_ICON;
+        String taskLine = removed.getTypeIcon() + statusIcon + " " + removed.getDisplayString();
+        String countLine = "Now you have " + tasks.size() + " task" + (tasks.size() == 1 ? "" : "s") + " in the list.";
+        printFramedThreeLineMessage(borderLine, rightAlignFormat,
+                "Noted. I've removed this task:",
+                taskLine,
+                countLine);
     }
 
     // Add task command
@@ -339,6 +380,7 @@ public class Spot {
         LIST,
         MARK,
         UNMARK,
+        DELETE,
         TODO,
         DEADLINE,
         EVENT,

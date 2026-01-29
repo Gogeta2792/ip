@@ -30,6 +30,7 @@ ____________________________________________________________
         event <desc> /from <start> /to <end>  – add an event
                mark <number>           – mark a task as done
            unmark <number>         – mark a task as not done
+           delete <number>        – remove a task from the list
                     help                    – show this list
              bye                     – exit (See you later!)
 
@@ -105,6 +106,31 @@ ____________________________________________________________
                        2.[D][X] return book (by: 2025-02-01)
                3.[E][ ] team meeting (from: Mon 2pm to: 3pm)
 
+____________________________________________________________
+
+____________________________________________________________
+
+                  Spot: Noted. I've removed this task:
+                         [D][X] return book (by: 2025-02-01)
+                           Now you have 2 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+
+                       Spot: Here are your tasks, good luck!
+                                          1.[T][ ] read book
+               2.[E][ ] team meeting (from: Mon 2pm to: 3pm)
+
+____________________________________________________________
+
+____________________________________________________________
+
+                  Spot: You have to give me the task number!
+____________________________________________________________
+
+____________________________________________________________
+
+                  Spot: That task doesn't exist!
 ____________________________________________________________
 
 
