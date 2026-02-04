@@ -11,7 +11,7 @@ ____________________________________________________________
 
 ____________________________________________________________
 
-                       Spot: Here are your tasks, good luck!
+                Spot: Your list is empty. Add a task to get started!
 
 ____________________________________________________________
 
@@ -24,15 +24,16 @@ ____________________________________________________________
 
                    Spot: Here are the commands I understand:
                                                             
-                    list                    – show all tasks
-                   todo <description>      – add a todo task
-                deadline <desc> /by <date>  – add a deadline
-        event <desc> /from <start> /to <end>  – add an event
-               mark <number>           – mark a task as done
-           unmark <number>         – mark a task as not done
-           delete <number>        – remove a task from the list
-                    help                    – show this list
-             bye                     – exit (See you later!)
+  list                                  show all tasks        
+  todo <description>                    add a todo task       
+  deadline <desc> /by <date>            add a deadline        
+  event <desc> /from <start> /to <end>  add an event          
+  on <date>                             list deadlines on that date
+  mark <number>                         mark a task as done   
+  unmark <number>                       mark task as not done 
+  delete <number>                       remove a task         
+  help                                  show this list        
+  bye                                   exit (See you later!) 
 
 ____________________________________________________________
 
@@ -61,7 +62,7 @@ ____________________________________________________________
 ____________________________________________________________
 
                          Spot: Got it. I've added this task:
-                         [D][ ] return book (by: 2025-02-01)
+                         [D][ ] return book (by: Feb 1 2025)
                            Now you have 2 tasks in the list.
 ____________________________________________________________
 
@@ -76,7 +77,7 @@ ____________________________________________________________
 
                        Spot: Here are your tasks, good luck!
                                           1.[T][ ] read book
-                       2.[D][ ] return book (by: 2025-02-01)
+                       2.[D][ ] return book (by: Feb 1 2025)
                3.[E][ ] team meeting (from: Mon 2pm to: 3pm)
 
 ____________________________________________________________
@@ -90,7 +91,7 @@ ____________________________________________________________
 ____________________________________________________________
 
                   Spot: Nice! I've marked this task as done:
-                         [D][X] return book (by: 2025-02-01)
+                         [D][X] return book (by: Feb 1 2025)
 ____________________________________________________________
 
 ____________________________________________________________
@@ -103,15 +104,15 @@ ____________________________________________________________
 
                        Spot: Here are your tasks, good luck!
                                           1.[T][ ] read book
-                       2.[D][X] return book (by: 2025-02-01)
+                       2.[D][X] return book (by: Feb 1 2025)
                3.[E][ ] team meeting (from: Mon 2pm to: 3pm)
 
 ____________________________________________________________
 
 ____________________________________________________________
 
-                  Spot: Noted. I've removed this task:
-                         [D][X] return book (by: 2025-02-01)
+                        Spot: Noted. I've removed this task:
+                         [D][X] return book (by: Feb 1 2025)
                            Now you have 2 tasks in the list.
 ____________________________________________________________
 
@@ -130,7 +131,7 @@ ____________________________________________________________
 
 ____________________________________________________________
 
-                  Spot: That task doesn't exist!
+                              Spot: That task doesn't exist!
 ____________________________________________________________
 
 
