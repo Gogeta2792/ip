@@ -1,3 +1,8 @@
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -19,6 +24,10 @@ public class Spot {
     private static final String CMD_EVENT = "event";
     private static final String CMD_DELETE = "delete";
     private static final String CMD_HELP = "help";
+
+    // Storage
+    private static final Path DATA_PATH = Paths.get("data", "spot.txt");
+    private static final String STORAGE_DELIMITER = " | ";
 
     // Fixed logo displayed on startup
     private static final String LOGO =
@@ -47,7 +56,7 @@ public class Spot {
 
     //Continuously reads user input, parses parsed commands
     private static void runCommandLoop(Scanner scanner, String borderLine, String rightAlignFormat) {
-        List<Task> tasks = new ArrayList<>();
+        List<Task> tasks = loadTasks();
 
         while (scanner.hasNextLine()) {
             String userInput = scanner.nextLine();
@@ -89,6 +98,95 @@ public class Spot {
                     break;
             }
         }
+    }
+
+    // Loads tasks from the data file. Returns an empty list if the file or directory does not exist
+    private static List<Task> loadTasks() {
+        if (Files.notExists(DATA_PATH) || !Files.isRegularFile(DATA_PATH)) {
+            return new ArrayList<>();
+        }
+        List<Task> tasks = new ArrayList<>();
+        try {
+            List<String> lines = Files.readAllLines(DATA_PATH, StandardCharsets.UTF_8);
+            for (String line : lines) {
+                String trimmed = line.trim();
+                if (trimmed.isEmpty()) {
+                    continue;
+                }
+                Task task = parseTaskLine(trimmed);
+                if (task != null) {
+                    tasks.add(task);
+                }
+            }
+        } catch (IOException e) {
+            return new ArrayList<>();
+        }
+        return tasks;
+    }
+
+    // Parses one line from the data file into a Task
+    private static Task parseTaskLine(String line) {
+        try {
+            String[] parts = line.split(" \\| ", -1);
+            if (parts.length < 3) {
+                return null;
+            }
+            String type = parts[0].trim();
+            int done = Integer.parseInt(parts[1].trim());
+            boolean isDone = (done == 1);
+
+            if ("T".equals(type) && parts.length == 3) {
+                Todo t = new Todo(parts[2].trim());
+                t.setDone(isDone);
+                return t;
+            }
+            if ("D".equals(type) && parts.length == 4) {
+                Deadline d = new Deadline(parts[2].trim(), parts[3].trim());
+                d.setDone(isDone);
+                return d;
+            }
+            if ("E".equals(type) && parts.length == 5) {
+                Event e = new Event(parts[2].trim(), parts[3].trim(), parts[4].trim());
+                e.setDone(isDone);
+                return e;
+            }
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+            // skip - corrupted file handling
+        }
+        return null;
+    }
+
+    //Saves the task list to the data file. Creates the parent directory and file if they do not exist
+    private static void saveTasks(List<Task> tasks) {
+        try {
+            if (DATA_PATH.getParent() != null) {
+                Files.createDirectories(DATA_PATH.getParent());
+            }
+            List<String> lines = new ArrayList<>();
+            for (Task task : tasks) {
+                lines.add(encodeTask(task));
+            }
+            Files.write(DATA_PATH, lines, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            // Silently ignore
+        }
+    }
+
+    private static String encodeTask(Task task) {
+        int done = task.isDone() ? 1 : 0;
+        if (task instanceof Todo) {
+            return "T" + STORAGE_DELIMITER + done + STORAGE_DELIMITER + task.getDescription();
+        }
+        if (task instanceof Deadline) {
+            return "D" + STORAGE_DELIMITER + done + STORAGE_DELIMITER + task.getDescription()
+                    + STORAGE_DELIMITER + ((Deadline) task).getBy();
+        }
+        if (task instanceof Event) {
+            Event e = (Event) task;
+            return "E" + STORAGE_DELIMITER + done + STORAGE_DELIMITER + task.getDescription()
+                    + STORAGE_DELIMITER + e.getFrom() + STORAGE_DELIMITER + e.getTo();
+        }
+        return "";
     }
 
     // Parses the command and returns a ParsedCommand object
@@ -156,21 +254,28 @@ public class Spot {
 
     // Help command – shows list of available functions
     private static void handleHelpCommand(String borderLine, String rightAlignFormat) {
-        String[] lines = {
-            "Spot: Here are the commands I understand:",
-            "",
-            "  list                    – show all tasks",
-            "  todo <description>      – add a todo task",
-            "  deadline <desc> /by <date>  – add a deadline",
-            "  event <desc> /from <start> /to <end>  – add an event",
-            "  mark <number>           – mark a task as done",
-            "  unmark <number>         – mark a task as not done",
-            "  delete <number>        – remove a task from the list",
-            "  help                    – show this list",
-            "  bye                     – exit (See you later!)"
+        int lineWidth = borderLine.length();
+        int cmdWidth = 36;   // fits longest command
+        int descWidth = lineWidth - cmdWidth - 2;  // 2 spaces between columns
+        String rowFormat = "  %-" + cmdWidth + "s  %-" + descWidth + "s";
+
+        String[][] commands = {
+            { "list", "show all tasks" },
+            { "todo <description>", "add a todo task" },
+            { "deadline <desc> /by <date>", "add a deadline" },
+            { "event <desc> /from <start> /to <end>", "add an event" },
+            { "mark <number>", "mark a task as done" },
+            { "unmark <number>", "mark task as not done" },
+            { "delete <number>", "remove a task" },
+            { "help", "show this list" },
+            { "bye", "exit (See you later!)" }
         };
+
         System.out.println(borderLine + "\n");
-        for (String line : lines) {
+        System.out.println(String.format(rightAlignFormat, "Spot: Here are the commands I understand:"));
+        System.out.println(String.format(rightAlignFormat, ""));
+        for (String[] cmd : commands) {
+            String line = String.format(rowFormat, cmd[0], cmd[1]);
             System.out.println(String.format(rightAlignFormat, line));
         }
         System.out.println("\n" + borderLine + "\n");
@@ -219,6 +324,7 @@ public class Spot {
                     taskLine
             );
         }
+        saveTasks(tasks);
     }
 
     // Delete task
@@ -250,6 +356,7 @@ public class Spot {
                 "Noted. I've removed this task:",
                 taskLine,
                 countLine);
+        saveTasks(tasks);
     }
 
     // Add task command
@@ -282,6 +389,7 @@ public class Spot {
                 "Got it. I've added this task:",
                 taskLine,
                 countLine);
+        saveTasks(tasks);
     }
 
     // Switch case for type error messages
@@ -460,6 +568,10 @@ public class Spot {
         String getDisplayString() {
             return getDescription() + " (by: " + by + ")";
         }
+
+        String getBy() {
+            return by;
+        }
     }
 
     // Event
@@ -481,6 +593,14 @@ public class Spot {
         @Override
         String getDisplayString() {
             return getDescription() + " (from: " + from + " to: " + to + ")";
+        }
+
+        String getFrom() {
+            return from;
+        }
+
+        String getTo() {
+            return to;
         }
     }
 }
