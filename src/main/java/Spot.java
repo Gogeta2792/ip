@@ -64,7 +64,13 @@ public class Spot {
         printFarewell(borderLine, rightAlignFormat);
     }
 
-    //Continuously reads user input, parses parsed commands
+    /**
+     * Continuously reads user input, parses parsed commands
+     *
+     * @param scanner input source for user commands
+     * @param borderLine horizontal border line used for UI framing
+     * @param rightAlignFormat format string used to right-align UI output
+     */
     private static void runCommandLoop(Scanner scanner, String borderLine, String rightAlignFormat) {
         List<Task> tasks = loadTasks();
 
@@ -79,36 +85,36 @@ public class Spot {
             ParsedCommand parsedCommand = parseCommand(trimmedInput);
 
             switch (parsedCommand.type) {
-                case BYE:
-                    return;
-                case LIST:
-                    handleListCommand(tasks, borderLine, rightAlignFormat);
-                    break;
-                case MARK:
-                case UNMARK:
-                    handleMarkCommand(tasks, parsedCommand, borderLine, rightAlignFormat);
-                    break;
-                case DELETE:
-                    handleDeleteCommand(tasks, parsedCommand, borderLine, rightAlignFormat);
-                    break;
-                case TODO:
-                case DEADLINE:
-                case EVENT:
-                case ADD:
-                    handleAddTaskCommand(tasks, parsedCommand, borderLine, rightAlignFormat);
-                    break;
-                case HELP:
-                    handleHelpCommand(borderLine, rightAlignFormat);
-                    break;
-                case ON:
-                    handleOnCommand(tasks, parsedCommand, borderLine, rightAlignFormat);
-                    break;
-                case UNKNOWN:
-                    printFramedMessage(borderLine, rightAlignFormat,
-                            "Spot: I don't know what you mean :( Type \"help\" to view a list of functions.");
-                    break;
-                default:
-                    break;
+            case BYE:
+                return;
+            case LIST:
+                handleListCommand(tasks, borderLine, rightAlignFormat);
+                break;
+            case MARK:
+            case UNMARK:
+                handleMarkCommand(tasks, parsedCommand, borderLine, rightAlignFormat);
+                break;
+            case DELETE:
+                handleDeleteCommand(tasks, parsedCommand, borderLine, rightAlignFormat);
+                break;
+            case TODO:
+            case DEADLINE:
+            case EVENT:
+            case ADD:
+                handleAddTaskCommand(tasks, parsedCommand, borderLine, rightAlignFormat);
+                break;
+            case HELP:
+                handleHelpCommand(borderLine, rightAlignFormat);
+                break;
+            case ON:
+                handleOnCommand(tasks, parsedCommand, borderLine, rightAlignFormat);
+                break;
+            case UNKNOWN:
+                printFramedMessage(borderLine, rightAlignFormat,
+                        "Spot: I don't know what you mean :( Type \"help\" to view a list of functions.");
+                break;
+            default:
+                break;
             }
         }
     }
@@ -170,7 +176,7 @@ public class Spot {
                 e.setDone(isDone);
                 return e;
             }
-        } catch (NumberFormatException | ArrayIndexOutOfBoundsException | DateTimeParseException e) {
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException | DateTimeParseException parseException) {
             // skip - corrupted file handling
         }
         return null;
@@ -280,7 +286,14 @@ public class Spot {
         System.out.println("\n" + borderLine + "\n");
     }
 
-    // On <date> command – list deadlines (and events if dated) occurring on the given date
+    /**
+     * Handles the {@code on <date>} command by listing deadlines that occur on the given date.
+     *
+     * @param tasks current in-memory task list
+     * @param parsedCommand parsed user input; its argument is expected to contain the date string
+     * @param borderLine horizontal border line used for UI framing
+     * @param rightAlignFormat format string used to right-align UI output
+     */
     private static void handleOnCommand(List<Task> tasks,
                                         ParsedCommand parsedCommand,
                                         String borderLine,
@@ -357,7 +370,7 @@ public class Spot {
         int oneBasedIndex;
         try {
             oneBasedIndex = Integer.parseInt(parsedCommand.argument == null ? "" : parsedCommand.argument);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException numberFormatException) {
             printFramedMessage(borderLine, rightAlignFormat,
                     "Spot: You have to give me the task number!");
             return;
@@ -401,7 +414,7 @@ public class Spot {
         int oneBasedIndex;
         try {
             oneBasedIndex = Integer.parseInt(parsedCommand.argument == null ? "" : parsedCommand.argument);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException numberFormatException) {
             printFramedMessage(borderLine, rightAlignFormat,
                     "Spot: You have to give me the task number!");
             return;
@@ -461,21 +474,21 @@ public class Spot {
     // Switch case for type error messages
     private static String getAddTaskErrorMessage(CommandType type) {
         switch (type) {
-            case DEADLINE:
-                return "Deadline must have a description and /by <date>. Example: deadline submit report /by 2025-02-01";
-            case EVENT:
-                return "Event must have a description, /from <start>, and /to <end>. Example: event team meeting /from Mon 2pm /to 3pm";
-            default:
-                return "I need more details. Use: deadline <description> /by <date>, or event <description> /from <start> /to <end>";
+        case DEADLINE:
+            return "Deadline must have a description and /by <date>. Example: deadline submit report /by 2025-02-01";
+        case EVENT:
+            return "Event must have a description, /from <start>, and /to <end>. Example: event team meeting /from Mon 2pm /to 3pm";
+        default:
+            return "I need more details. Use: deadline <description> /by <date>, or event <description> /from <start> /to <end>";
         }
     }
 
     //Parses a date/time string into LocalDateTime. Tries yyyy-MM-dd first, then d/M/yyyy HHmm.
-    private static LocalDateTime parseDateTime(String input) {
-        if (input == null || input.isBlank()) {
+    private static LocalDateTime parseDateTime(String dateTimeString) {
+        if (dateTimeString == null || dateTimeString.isBlank()) {
             return null;
         }
-        String s = input.trim();
+        String s = dateTimeString.trim();
         // yyyy-MM-dd (e.g. 2019-10-15)
         try {
             LocalDate d = LocalDate.parse(s);
@@ -509,35 +522,35 @@ public class Spot {
     private static Task createTask(ParsedCommand parsedCommand) {
         String argument = parsedCommand.argument == null ? "" : parsedCommand.argument;
         switch (parsedCommand.type) {
-            case TODO:
-            case ADD:
-                return argument.isEmpty() ? null : new Todo(argument);
-            case DEADLINE: {
-                int byIndex = argument.indexOf(" /by ");
-                if (byIndex < 0) {
-                    return null;
-                }
-                String description = argument.substring(0, byIndex).trim();
-                String byStr = argument.substring(byIndex + 5).trim();
-                if (description.isEmpty() || byStr.isEmpty()) {
-                    return null;
-                }
-                LocalDateTime by = parseDateTime(byStr);
-                return by == null ? null : new Deadline(description, by);
-            }
-            case EVENT: {
-                int fromIndex = argument.indexOf(" /from ");
-                int toIndex = argument.indexOf(" /to ");
-                if (fromIndex < 0 || toIndex < 0 || toIndex <= fromIndex) {
-                    return null;
-                }
-                String description = argument.substring(0, fromIndex).trim();
-                String from = argument.substring(fromIndex + 7, toIndex).trim();
-                String to = argument.substring(toIndex + 5).trim();
-                return description.isEmpty() || from.isEmpty() || to.isEmpty() ? null : new Event(description, from, to);
-            }
-            default:
+        case TODO:
+        case ADD:
+            return argument.isEmpty() ? null : new Todo(argument);
+        case DEADLINE: {
+            int byIndex = argument.indexOf(" /by ");
+            if (byIndex < 0) {
                 return null;
+            }
+            String description = argument.substring(0, byIndex).trim();
+            String byStr = argument.substring(byIndex + 5).trim();
+            if (description.isEmpty() || byStr.isEmpty()) {
+                return null;
+            }
+            LocalDateTime by = parseDateTime(byStr);
+            return by == null ? null : new Deadline(description, by);
+        }
+        case EVENT: {
+            int fromIndex = argument.indexOf(" /from ");
+            int toIndex = argument.indexOf(" /to ");
+            if (fromIndex < 0 || toIndex < 0 || toIndex <= fromIndex) {
+                return null;
+            }
+            String description = argument.substring(0, fromIndex).trim();
+            String from = argument.substring(fromIndex + 7, toIndex).trim();
+            String to = argument.substring(toIndex + 5).trim();
+            return description.isEmpty() || from.isEmpty() || to.isEmpty() ? null : new Event(description, from, to);
+        }
+        default:
+            return null;
         }
     }
 
