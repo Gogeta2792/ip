@@ -56,7 +56,7 @@ echo [√] Compilation successful
 echo.
 
 echo [4/4] Running tests...
-java -classpath ..\bin Spot < input.txt > ACTUAL.TXT
+java -classpath ..\bin spot.Spot < input.txt > ACTUAL.TXT
 
 FC ACTUAL.TXT EXPECTED.TXT > nul
 if ERRORLEVEL 1 (

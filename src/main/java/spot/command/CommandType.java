@@ -1,3 +1,5 @@
+package spot.command;
+
 public enum CommandType {
     LIST,
     MARK,
@@ -12,4 +14,3 @@ public enum CommandType {
     HELP,
     UNKNOWN
 }
-

@@ -1,3 +1,5 @@
+package spot.task;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,4 +52,3 @@ public class TaskList {
         return onDate;
     }
 }
-

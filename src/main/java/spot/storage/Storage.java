@@ -1,3 +1,5 @@
+package spot.storage;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -8,6 +10,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import spot.task.Deadline;
+import spot.task.Event;
+import spot.task.Task;
+import spot.task.TaskList;
+import spot.task.Todo;
 
 public class Storage {
     private static final String STORAGE_DELIMITER = " | ";
@@ -123,4 +130,3 @@ public class Storage {
         return "";
     }
 }
-
