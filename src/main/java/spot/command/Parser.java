@@ -1,7 +1,13 @@
+package spot.command;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import spot.task.Deadline;
+import spot.task.Event;
+import spot.task.Task;
+import spot.task.Todo;
 
 public class Parser {
     private static final String CMD_LIST = "list";
@@ -140,4 +146,3 @@ public class Parser {
         }
     }
 }
-

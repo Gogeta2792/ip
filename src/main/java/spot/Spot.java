@@ -1,5 +1,14 @@
+package spot;
+
 import java.util.List;
 import java.util.Scanner;
+import spot.command.CommandType;
+import spot.command.ParsedCommand;
+import spot.command.Parser;
+import spot.storage.Storage;
+import spot.task.Task;
+import spot.task.TaskList;
+import spot.ui.Ui;
 
 public class Spot {
     private final Storage storage;

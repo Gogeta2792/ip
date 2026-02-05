@@ -1,3 +1,5 @@
+package spot.task;
+
 public abstract class Task {
     private final String description;
     private boolean done;
@@ -25,4 +27,3 @@ public abstract class Task {
         this.done = done;
     }
 }
-

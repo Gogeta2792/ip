@@ -1,3 +1,5 @@
+package spot.util;
+
 import java.time.format.DateTimeFormatter;
 
 public class DateTimeFormats {
@@ -8,4 +10,3 @@ public class DateTimeFormats {
         // utility class
     }
 }
-

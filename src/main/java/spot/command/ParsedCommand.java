@@ -1,3 +1,5 @@
+package spot.command;
+
 public class ParsedCommand {
     private final CommandType type;
     private final String argument;
@@ -15,4 +17,3 @@ public class ParsedCommand {
         return argument;
     }
 }
-
