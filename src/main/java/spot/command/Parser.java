@@ -9,6 +9,9 @@ import spot.task.Event;
 import spot.task.Task;
 import spot.task.Todo;
 
+/**
+ * Parses user input into commands and creates Task instances from command arguments.
+ */
 public class Parser {
     private static final String CMD_LIST = "list";
     private static final String CMD_BYE = "bye";
@@ -19,8 +22,16 @@ public class Parser {
     private static final String CMD_EVENT = "event";
     private static final String CMD_DELETE = "delete";
     private static final String CMD_HELP = "help";
+    private static final String CMD_CHEER = "cheer";
     private static final String CMD_ON = "on";
+    private static final String CMD_FIND = "find";
 
+    /**
+     * Parses a trimmed user input line into a {@link ParsedCommand}.
+     *
+     * @param trimmedInput non-null trimmed input (e.g. "list", "mark 1", "deadline x /by 2025-01-01")
+     * @return the parsed command (type UNKNOWN if unrecognized)
+     */
     public static ParsedCommand parse(String trimmedInput) {
         if (trimmedInput.equalsIgnoreCase(CMD_BYE)) {
             return new ParsedCommand(CommandType.BYE, null);
@@ -34,9 +45,18 @@ public class Parser {
             return new ParsedCommand(CommandType.HELP, null);
         }
 
+        if (trimmedInput.equalsIgnoreCase(CMD_CHEER)) {
+            return new ParsedCommand(CommandType.CHEER, null);
+        }
+
         String[] parts = trimmedInput.split("\\s+", 2);
         String rawCommand = parts[0];
         String lowerCommand = rawCommand.toLowerCase();
+
+        if (lowerCommand.equals(CMD_FIND)) {
+            String argument = parts.length > 1 ? parts[1].trim() : "";
+            return new ParsedCommand(CommandType.FIND, argument);
+        }
 
         if (lowerCommand.equals(CMD_ON)) {
             String argument = parts.length > 1 ? parts[1].trim() : "";
@@ -72,14 +92,29 @@ public class Parser {
         return new ParsedCommand(CommandType.UNKNOWN, null);
     }
 
+    /**
+     * Returns a user-facing error message when add/todo/deadline/event parsing fails.
+     *
+     * @param type the command type that failed
+     * @return short message explaining the expected format
+     */
     public static String getAddTaskErrorMessage(CommandType type) {
         return switch (type) {
-        case DEADLINE -> "Deadline must have a description and /by <date>. Example: deadline submit report /by 2025-02-01";
-        case EVENT -> "Event must have a description, /from <start>, and /to <end>. Example: event team meeting /from Mon 2pm /to 3pm";
-        default -> "I need more details. Use: deadline <description> /by <date>, or event <description> /from <start> /to <end>";
+        case DEADLINE -> "Deadline must have a description and /by <date>. "
+                + "Example: deadline submit report /by 2025-02-01";
+        case EVENT -> "Event must have a description, /from <start>, and /to <end>. "
+                + "Example: event team meeting /from Mon 2pm /to 3pm";
+        default -> "I need more details. Use: deadline <description> /by <date>, "
+                + "or event <description> /from <start> /to <end>";
         };
     }
 
+    /**
+     * Creates a Task from a parsed add/todo/deadline/event command.
+     *
+     * @param parsedCommand the parsed command (TODO, DEADLINE, EVENT, or ADD)
+     * @return the created task, or null if the argument format is invalid
+     */
     public static Task createTask(ParsedCommand parsedCommand) {
         String argument = parsedCommand.argument() == null ? "" : parsedCommand.argument();
         return switch (parsedCommand.type()) {
@@ -106,17 +141,30 @@ public class Parser {
             String description = argument.substring(0, fromIndex).trim();
             String from = argument.substring(fromIndex + 7, toIndex).trim();
             String to = argument.substring(toIndex + 5).trim();
-            yield description.isEmpty() || from.isEmpty() || to.isEmpty() ? null : new Event(description, from, to);
+            yield description.isEmpty() || from.isEmpty() || to.isEmpty()
+                    ? null : new Event(description, from, to);
         }
         default -> null;
         };
     }
 
+    /**
+     * Parses a date string (yyyy-mm-dd or d/M/yyyy) into a date at start of day.
+     *
+     * @param input the date string; may be null or blank
+     * @return the parsed date, or null if unparseable
+     */
     public static LocalDate parseDate(String input) {
         LocalDateTime ldt = parseDateTime(input);
         return ldt == null ? null : ldt.toLocalDate();
     }
 
+    /**
+     * Parses a date or date-time string. Supports ISO date, d/M/yyyy, and d/M/yyyy HHmm.
+     *
+     * @param dateTimeString the input string; null or blank returns null
+     * @return the parsed date-time (midnight if date-only), or null if unparseable
+     */
     private static LocalDateTime parseDateTime(String dateTimeString) {
         if (dateTimeString == null || dateTimeString.isBlank()) {
             return null;

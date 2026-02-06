@@ -42,3 +42,31 @@ The project comes with a set of test scripts for different operating systems:
   ```
 
 These scripts will compile the source files, run the tests, and compare the output against the expected output.
+
+## Packaging as an executable JAR
+
+This project is configured to build a self-contained executable JAR (a “fat jar”) that can be distributed and run without any additional classpath setup.
+
+### Build the JAR
+
+```bash
+./gradlew clean shadowJar
+```
+
+On Windows PowerShell:
+
+```powershell
+.\gradlew.bat clean shadowJar
+```
+
+The executable JAR will be created at `build/libs/spot.jar`.
+
+### Run the JAR
+
+1. Copy `build/libs/spot.jar` into an empty folder.
+2. Open a command window in that folder.
+3. Run:
+
+```bash
+java -jar "spot.jar"
+```

@@ -1,0 +1,13 @@
+Keep going – even the best programmers started out writing 'Hello World'!
+The only way to learn a new programming language is by writing programs in it.
+Code is like humor. When you have to explain it, it's bad.
+First, solve the problem. Then, write the code.
+Any fool can write code that a computer can understand. Good programmers write code that humans can understand.
+The best error message is the one that never shows up.
+Talk is cheap. Show me the code.
+Make it work, make it right, make it fast – in that order.
+You don't have to be great to start, but you have to start to be great.
+Debugging is twice as hard as writing the code in the first place.
+Every expert was once a beginner. Every master was once a disaster.
+The best time to refactor was yesterday. The second best time is now.
+Your code is your craft. Keep sharpening the saw.

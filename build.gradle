@@ -34,6 +34,13 @@ application {
 shadowJar {
     archiveBaseName = "spot"
     archiveClassifier = null
+    manifest {
+        attributes 'Main-Class': application.mainClass.get()
+    }
+}
+
+tasks.named("build") {
+    dependsOn(tasks.named("shadowJar"))
 }
 
 run{

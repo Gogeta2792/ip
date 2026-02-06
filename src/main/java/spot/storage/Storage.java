@@ -16,18 +16,27 @@ import spot.task.Task;
 import spot.task.TaskList;
 import spot.task.Todo;
 
+/**
+ * Persists and loads the task list to/from a text file using a pipe-delimited format.
+ */
 public class Storage {
     private static final String STORAGE_DELIMITER = " | ";
 
     private final Path dataPath;
 
+    /**
+     * Creates storage that uses the given file path for reading and writing tasks.
+     *
+     * @param filePath path to the data file (e.g. "data/spot.txt")
+     */
     public Storage(String filePath) {
         this.dataPath = Paths.get(filePath);
     }
 
     /**
      * Loads tasks from the data file.
-     * Returns an empty list if error like the file does not exist, not a regular file, cannot be read
+     *
+     * @return list of tasks; empty if file does not exist, is not a regular file, or cannot be read
      */
     public List<Task> load() {
         if (Files.notExists(dataPath) || !Files.isRegularFile(dataPath)) {
@@ -55,11 +64,18 @@ public class Storage {
     /**
      * Saves the task list to the data file.
      * Creates the parent directory if it does not exist.
+     *
+     * @param tasks the task list to persist
      */
     public void save(TaskList tasks) {
         save(tasks.asUnmodifiableList());
     }
 
+    /**
+     * Writes the given task list to the data file, creating parent directories if needed.
+     *
+     * @param tasks the list of tasks to write
+     */
     private void save(List<Task> tasks) {
         try {
             if (dataPath.getParent() != null) {
@@ -71,10 +87,16 @@ public class Storage {
             }
             Files.write(dataPath, lines, StandardCharsets.UTF_8);
         } catch (IOException ioException) {
-            //silently ignore
+            // Silently ignore write errors.
         }
     }
 
+    /**
+     * Parses a single storage line (T|0|desc or D|0|desc|by or E|0|desc|from|to) into a Task.
+     *
+     * @param line one line from the data file
+     * @return the parsed task, or null if the line is invalid or corrupted
+     */
     private static Task parseTaskLine(String line) {
         try {
             String[] parts = line.split(" \\| ", -1);
@@ -108,11 +130,17 @@ public class Storage {
                 return event;
             }
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException | DateTimeParseException parseException) {
-            // skip -> corrupted file handling
+            // Corrupted or invalid line; skip.
         }
         return null;
     }
 
+    /**
+     * Encodes a single task to a storage line (T|0|desc or D|0|desc|by or E|0|desc|from|to).
+     *
+     * @param task the task to encode
+     * @return the line string, or empty string for unknown task types
+     */
     private static String encodeTask(Task task) {
         int done = task.isDone() ? 1 : 0;
         if (task instanceof Todo) {
