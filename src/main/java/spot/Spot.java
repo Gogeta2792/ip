@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+
 import spot.command.CommandType;
 import spot.command.ParsedCommand;
 import spot.command.Parser;
@@ -83,7 +84,7 @@ public class Spot {
                 handleFind(parsedCommand);
                 break;
             case MARK:
-            case UNMARK:  // fall through: both use handleMark
+            case UNMARK: // fall through: both use handleMark
                 handleMark(parsedCommand);
                 break;
             case DELETE:
@@ -92,7 +93,7 @@ public class Spot {
             case TODO:
             case DEADLINE:
             case EVENT:
-            case ADD:  // fall through: all add-type commands use handleAddTask
+            case ADD: // fall through: all add-type commands use handleAddTask
                 handleAddTask(parsedCommand);
                 break;
             case HELP:
@@ -148,7 +149,8 @@ public class Spot {
         LocalDate queriedDate = Parser.parseDate(dateArg);
         if (queriedDate == null) {
             ui.showFramedMessage(
-                    "Spot: I couldn't understand that date. Use yyyy-mm-dd or d/M/yyyy (e.g. 2019-12-02 or 2/12/2019).");
+                    "Spot: I couldn't understand that date. Use yyyy-mm-dd or d/M/yyyy "
+                            + "(e.g. 2019-12-02 or 2/12/2019).");
             return;
         }
 

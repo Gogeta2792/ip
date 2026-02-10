@@ -3,6 +3,7 @@ package spot.ui;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
+
 import spot.task.Task;
 import spot.task.TaskList;
 import spot.util.DateTimeFormats;

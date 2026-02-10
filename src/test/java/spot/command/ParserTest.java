@@ -1,15 +1,20 @@
 package spot.command;
 
-import org.junit.jupiter.api.Test;
-import spot.task.Deadline;
-import spot.task.Event;
-import spot.task.Task;
-import spot.task.Todo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+import spot.task.Deadline;
+import spot.task.Event;
+import spot.task.Task;
+import spot.task.Todo;
 
 /**
  * Tests for {@link Parser}.
