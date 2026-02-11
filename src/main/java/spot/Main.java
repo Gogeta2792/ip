@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -69,6 +70,8 @@ public class Main extends Application {
         scrollPane.setVvalue(1.0);
         scrollPane.setFitToWidth(true);
         dialogContainer.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        dialogContainer.setSpacing(12);
+        dialogContainer.setPadding(new Insets(10));
         userInput.setPrefWidth(325.0);
         sendButton.setPrefWidth(55.0);
 
