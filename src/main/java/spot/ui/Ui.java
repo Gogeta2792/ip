@@ -1,5 +1,7 @@
 package spot.ui;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
@@ -36,17 +38,45 @@ public class Ui {
     private final String borderLine;
     private final String rightAlignFormat;
     private final Scanner scanner;
+    /** When non-null, output is written here instead of System.out (e.g. for GUI). */
+    private final Appendable output;
 
     /**
      * Creates a UI that reads from the given scanner and uses a fixed line width for framing.
+     * Output is printed to System.out.
      *
      * @param scanner input source for user commands
      */
     public Ui(Scanner scanner) {
+        this(scanner, null);
+    }
+
+    /**
+     * Creates a UI that reads from the given scanner and optionally writes to an Appendable.
+     * When output is null, messages are printed to System.out.
+     *
+     * @param scanner input source for user commands
+     * @param output  optional; when non-null, all showXxx output is appended here (for GUI)
+     */
+    public Ui(Scanner scanner, Appendable output) {
         this.borderLine = HORIZONTAL_LINE;
         int lineWidth = borderLine.length();
         this.rightAlignFormat = "%" + lineWidth + "s";
         this.scanner = scanner;
+        this.output = output;
+    }
+
+    /** Writes a line to the configured output (System.out or Appendable). */
+    private void println(String line) {
+        try {
+            if (output != null) {
+                output.append(line).append("\n");
+            } else {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     /**
@@ -68,17 +98,17 @@ public class Ui {
 
     /** Prints the welcome banner with logo and prompt. */
     public void showWelcome() {
-        System.out.println(borderLine);
-        System.out.println("Hello! I'm \n" + LOGO + SPOT_ASCII + "\nWhat tasks do you have today?");
-        System.out.println(borderLine + "\n");
+        println(borderLine);
+        println("Hello! I'm \n" + LOGO + SPOT_ASCII + "\nWhat tasks do you have today?");
+        println(borderLine + "\n");
     }
 
     /** Prints the farewell message and border. */
     public void showFarewell() {
         String farewellMsg = "Spot: Bye. Hope to see you again soon!";
         String rightAlignedFarewell = String.format(rightAlignFormat, farewellMsg);
-        System.out.println("\n" + rightAlignedFarewell);
-        System.out.println(borderLine);
+        println("\n" + rightAlignedFarewell);
+        println(borderLine);
     }
 
     /**
@@ -87,18 +117,18 @@ public class Ui {
      * @param tasks the task list to display
      */
     public void showList(TaskList tasks) {
-        System.out.println(borderLine + "\n");
+        println(borderLine + "\n");
         if (tasks.isEmpty()) {
-            System.out.println(String.format(rightAlignFormat, "Spot: Your list is empty. Add a task to get started!"));
+            println(String.format(rightAlignFormat, "Spot: Your list is empty. Add a task to get started!"));
         } else {
-            System.out.println(String.format(rightAlignFormat, "Spot: Here are your tasks, good luck!"));
+            println(String.format(rightAlignFormat, "Spot: Here are your tasks, good luck!"));
             for (int i = 0; i < tasks.size(); i++) {
                 Task task = tasks.get(i);
                 String taskLine = (i + 1) + "." + formatTask(task);
-                System.out.println(String.format(rightAlignFormat, taskLine));
+                println(String.format(rightAlignFormat, taskLine));
             }
         }
-        System.out.println("\n" + borderLine + "\n");
+        println("\n" + borderLine + "\n");
     }
 
     /**
@@ -107,19 +137,19 @@ public class Ui {
      * @param matching list of tasks whose description matches the keyword
      */
     public void showMatchingTasks(List<Task> matching) {
-        System.out.println(borderLine + "\n");
+        println(borderLine + "\n");
         if (matching.isEmpty()) {
-            System.out.println(String.format(rightAlignFormat, "Spot: No matching tasks in your list."));
+            println(String.format(rightAlignFormat, "Spot: No matching tasks in your list."));
         } else {
-            System.out.println(String.format(rightAlignFormat, "Here are the matching tasks in your list:"));
-            System.out.println();
+            println(String.format(rightAlignFormat, "Here are the matching tasks in your list:"));
+            println("");
             for (int i = 0; i < matching.size(); i++) {
                 Task task = matching.get(i);
                 String taskLine = (i + 1) + "." + formatTask(task);
-                System.out.println(String.format(rightAlignFormat, taskLine));
+                println(String.format(rightAlignFormat, taskLine));
             }
         }
-        System.out.println("\n" + borderLine + "\n");
+        println("\n" + borderLine + "\n");
     }
 
     /**
@@ -129,20 +159,20 @@ public class Ui {
      * @param queriedDate  the date that was queried (for display)
      */
     public void showDeadlinesOn(List<Task> tasksOnDate, LocalDate queriedDate) {
-        System.out.println(borderLine + "\n");
+        println(borderLine + "\n");
         if (tasksOnDate.isEmpty()) {
-            System.out.println(String.format(rightAlignFormat,
+            println(String.format(rightAlignFormat,
                     "Spot: No deadlines on " + queriedDate.format(DateTimeFormats.DISPLAY_DATE) + "."));
         } else {
-            System.out.println(String.format(rightAlignFormat,
+            println(String.format(rightAlignFormat,
                     "Spot: Deadlines on " + queriedDate.format(DateTimeFormats.DISPLAY_DATE) + ":"));
             for (int i = 0; i < tasksOnDate.size(); i++) {
                 Task task = tasksOnDate.get(i);
                 String taskLine = (i + 1) + "." + formatTask(task);
-                System.out.println(String.format(rightAlignFormat, taskLine));
+                println(String.format(rightAlignFormat, taskLine));
             }
         }
-        System.out.println("\n" + borderLine + "\n");
+        println("\n" + borderLine + "\n");
     }
 
     /** Prints the help text listing all supported commands. */
@@ -167,14 +197,14 @@ public class Ui {
             { "bye", "exit (See you later!)" }
         };
 
-        System.out.println(borderLine + "\n");
-        System.out.println(String.format(rightAlignFormat, "Spot: Here are the commands I understand:"));
-        System.out.println(String.format(rightAlignFormat, ""));
+        println(borderLine + "\n");
+        println(String.format(rightAlignFormat, "Spot: Here are the commands I understand:"));
+        println(String.format(rightAlignFormat, ""));
         for (String[] cmd : commands) {
             String line = String.format(rowFormat, cmd[0], cmd[1]);
-            System.out.println(String.format(rightAlignFormat, line));
+            println(String.format(rightAlignFormat, line));
         }
-        System.out.println("\n" + borderLine + "\n");
+        println("\n" + borderLine + "\n");
     }
 
     /**
@@ -241,7 +271,7 @@ public class Ui {
      */
     public void showCheer(String quote) {
         String coloredQuote = ANSI_CYAN + quote + ANSI_RESET;
-        System.out.println(
+        println(
                 borderLine + "\n\n" + String.format(rightAlignFormat, coloredQuote) + "\n" + borderLine + "\n");
     }
 
@@ -253,13 +283,13 @@ public class Ui {
 
     /** Prints one message line between top and bottom borders. */
     private void printFramedMessage(String message) {
-        System.out.println(
+        println(
                 borderLine + "\n\n" + String.format(rightAlignFormat, message) + "\n" + borderLine + "\n");
     }
 
     /** Prints header and content lines between borders. */
     private void printFramedTwoLineMessage(String header, String content) {
-        System.out.println(
+        println(
                 borderLine + "\n\n"
                         + String.format(rightAlignFormat, header) + "\n"
                         + String.format(rightAlignFormat, content) + "\n"
@@ -269,7 +299,7 @@ public class Ui {
 
     /** Prints header, content, and footer lines between borders (e.g. task added/deleted). */
     private void printFramedThreeLineMessage(String header, String content, String footer) {
-        System.out.println(
+        println(
                 borderLine + "\n\n"
                         + String.format(rightAlignFormat, "Spot: " + header) + "\n"
                         + String.format(rightAlignFormat, content) + "\n"

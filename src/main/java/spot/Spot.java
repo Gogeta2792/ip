@@ -19,9 +19,18 @@ import spot.util.CheerQuotes;
  * Coordinates storage, task list, and UI to process user commands.
  */
 public class Spot {
+    private static final String DEFAULT_FILE_PATH = "data/spot.txt";
+
     private final Storage storage;
     private final TaskList tasks;
-    private final Ui ui;
+    private Ui ui;
+
+    /**
+     * No-argument constructor for use by JavaFX GUI (uses default data file path).
+     */
+    public Spot() {
+        this(DEFAULT_FILE_PATH);
+    }
 
     /**
      * Creates a Spot instance with storage at the given path and initializes from disk.
@@ -72,46 +81,95 @@ public class Spot {
                 continue;
             }
 
-            ParsedCommand parsedCommand = Parser.parse(trimmedInput);
-
-            switch (parsedCommand.type()) {
-            case BYE:
+            if (runOneCommand(trimmedInput)) {
                 return;
-            case LIST:
-                ui.showList(tasks);
-                break;
-            case FIND:
-                handleFind(parsedCommand);
-                break;
-            case MARK:
-            case UNMARK: // fall through: both use handleMark
-                handleMark(parsedCommand);
-                break;
-            case DELETE:
-                handleDelete(parsedCommand);
-                break;
-            case TODO:
-            case DEADLINE:
-            case EVENT:
-            case ADD: // fall through: all add-type commands use handleAddTask
-                handleAddTask(parsedCommand);
-                break;
-            case HELP:
-                ui.showHelp();
-                break;
-            case CHEER:
-                handleCheer();
-                break;
-            case ON:
-                handleOn(parsedCommand);
-                break;
-            case UNKNOWN:
-                ui.showFramedMessage(
-                        "Spot: I don't know what you mean :( Type \"help\" to view a list of functions.");
-                break;
-            default:
-                break;
             }
+        }
+    }
+
+    /**
+     * Processes a single command and writes the response to the current UI.
+     *
+     * @param trimmedInput non-empty trimmed user input
+     * @return true if the command was "bye" (caller should exit), false otherwise
+     */
+    public boolean runOneCommand(String trimmedInput) {
+        ParsedCommand parsedCommand = Parser.parse(trimmedInput);
+
+        switch (parsedCommand.type()) {
+        case BYE:
+            return true;
+        case LIST:
+            ui.showList(tasks);
+            break;
+        case FIND:
+            handleFind(parsedCommand);
+            break;
+        case MARK:
+        case UNMARK:
+            handleMark(parsedCommand);
+            break;
+        case DELETE:
+            handleDelete(parsedCommand);
+            break;
+        case TODO:
+        case DEADLINE:
+        case EVENT:
+        case ADD:
+            handleAddTask(parsedCommand);
+            break;
+        case HELP:
+            ui.showHelp();
+            break;
+        case CHEER:
+            handleCheer();
+            break;
+        case ON:
+            handleOn(parsedCommand);
+            break;
+        case UNKNOWN:
+            ui.showFramedMessage(
+                    "Spot: I don't know what you mean :( Type \"help\" to view a list of functions.");
+            break;
+        default:
+            break;
+        }
+        return false;
+    }
+
+    /**
+     * Returns the welcome message (for GUI startup).
+     */
+    public String getWelcomeMessage() {
+        StringBuilder sb = new StringBuilder();
+        Ui welcomeUi = new Ui(new Scanner(""), sb);
+        welcomeUi.showWelcome();
+        return sb.toString().trim();
+    }
+
+    /**
+     * Generates a response for the given user input (for GUI). Runs one command and returns
+     * all output that would have been shown to the user as a single string.
+     *
+     * @param input the user's command (e.g. "list", "todo buy milk")
+     * @return the response text to display, or empty string if input is blank
+     */
+    public String getResponse(String input) {
+        if (input == null || input.trim().isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        Ui responseUi = new Ui(new Scanner(""), sb);
+        Ui prev = ui;
+        ui = responseUi;
+        try {
+            boolean exit = runOneCommand(input.trim());
+            if (exit) {
+                responseUi.showFarewell();
+            }
+            return sb.toString().trim();
+        } finally {
+            ui = prev;
         }
     }
 
