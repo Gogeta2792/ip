@@ -8,11 +8,14 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.shape.Circle;
 
 /**
  * A custom control for a dialog box consisting of an ImageView (avatar) and a Label (text).
  */
 public class DialogBox extends HBox {
+
+    private static final double AVATAR_SIZE = 48.0;
 
     private final Label text;
     private final ImageView displayPicture;
@@ -22,8 +25,13 @@ public class DialogBox extends HBox {
         displayPicture = new ImageView(img);
 
         text.setWrapText(true);
-        displayPicture.setFitWidth(100.0);
-        displayPicture.setFitHeight(100.0);
+        displayPicture.setFitWidth(AVATAR_SIZE);
+        displayPicture.setFitHeight(AVATAR_SIZE);
+        displayPicture.setPreserveRatio(true);
+
+        double radius = AVATAR_SIZE / 2.0;
+        Circle clip = new Circle(radius, radius, radius);
+        displayPicture.setClip(clip);
 
         this.getChildren().addAll(text, displayPicture);
     }
