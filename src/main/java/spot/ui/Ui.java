@@ -35,6 +35,21 @@ public class Ui {
                     + " `_/      )\n"
                     + " (_(_/-(_/\n";
 
+    private static final String[][] HELP_COMMANDS = {
+        { "list", "show all tasks" },
+        { "cheer", "show a random motivational quote" },
+        { "find <keyword>", "search tasks by keyword" },
+        { "todo <description>", "add a todo task" },
+        { "deadline <desc> /by <date>", "add a deadline" },
+        { "event <desc> /from <start> /to <end>", "add an event" },
+        { "on <date>", "list deadlines on that date" },
+        { "mark <number>", "mark a task as done" },
+        { "unmark <number>", "mark task as not done" },
+        { "delete <number>", "remove a task" },
+        { "help", "show this list" },
+        { "bye", "exit (See you later!)" }
+    };
+
     private final String borderLine;
     private final String rightAlignFormat;
     private final Scanner scanner;
@@ -64,6 +79,11 @@ public class Ui {
         this.rightAlignFormat = "%" + lineWidth + "s";
         this.scanner = scanner;
         this.output = output;
+    }
+
+    /** True when output goes to an Appendable (GUI); use plain formatting without borders. */
+    private boolean isGuiMode() {
+        return output != null;
     }
 
     /** Writes a line to the configured output (System.out or Appendable). */
@@ -98,6 +118,12 @@ public class Ui {
 
     /** Prints the welcome banner with logo and prompt. */
     public void showWelcome() {
+        if (isGuiMode()) {
+            println("Hello! I'm");
+            println(LOGO + SPOT_ASCII);
+            println("What tasks do you have today?");
+            return;
+        }
         println(borderLine);
         println("Hello! I'm \n" + LOGO + SPOT_ASCII + "\nWhat tasks do you have today?");
         println(borderLine + "\n");
@@ -106,6 +132,10 @@ public class Ui {
     /** Prints the farewell message and border. */
     public void showFarewell() {
         String farewellMsg = "Spot: Bye. Hope to see you again soon!";
+        if (isGuiMode()) {
+            println(farewellMsg);
+            return;
+        }
         String rightAlignedFarewell = String.format(rightAlignFormat, farewellMsg);
         println("\n" + rightAlignedFarewell);
         println(borderLine);
@@ -117,6 +147,18 @@ public class Ui {
      * @param tasks the task list to display
      */
     public void showList(TaskList tasks) {
+        if (isGuiMode()) {
+            if (tasks.isEmpty()) {
+                println("Spot: Your list is empty. Add a task to get started!");
+            } else {
+                println("Spot: Here are your tasks, good luck!");
+                for (int i = 0; i < tasks.size(); i++) {
+                    Task task = tasks.get(i);
+                    println((i + 1) + ". " + formatTask(task));
+                }
+            }
+            return;
+        }
         println(borderLine + "\n");
         if (tasks.isEmpty()) {
             println(String.format(rightAlignFormat, "Spot: Your list is empty. Add a task to get started!"));
@@ -137,6 +179,18 @@ public class Ui {
      * @param matching list of tasks whose description matches the keyword
      */
     public void showMatchingTasks(List<Task> matching) {
+        if (isGuiMode()) {
+            if (matching.isEmpty()) {
+                println("Spot: No matching tasks in your list.");
+            } else {
+                println("Here are the matching tasks in your list:");
+                for (int i = 0; i < matching.size(); i++) {
+                    Task task = matching.get(i);
+                    println((i + 1) + ". " + formatTask(task));
+                }
+            }
+            return;
+        }
         println(borderLine + "\n");
         if (matching.isEmpty()) {
             println(String.format(rightAlignFormat, "Spot: No matching tasks in your list."));
@@ -159,6 +213,18 @@ public class Ui {
      * @param queriedDate  the date that was queried (for display)
      */
     public void showDeadlinesOn(List<Task> tasksOnDate, LocalDate queriedDate) {
+        if (isGuiMode()) {
+            if (tasksOnDate.isEmpty()) {
+                println("Spot: No deadlines on " + queriedDate.format(DateTimeFormats.DISPLAY_DATE) + ".");
+            } else {
+                println("Spot: Deadlines on " + queriedDate.format(DateTimeFormats.DISPLAY_DATE) + ":");
+                for (int i = 0; i < tasksOnDate.size(); i++) {
+                    Task task = tasksOnDate.get(i);
+                    println((i + 1) + ". " + formatTask(task));
+                }
+            }
+            return;
+        }
         println(borderLine + "\n");
         if (tasksOnDate.isEmpty()) {
             println(String.format(rightAlignFormat,
@@ -177,30 +243,22 @@ public class Ui {
 
     /** Prints the help text listing all supported commands. */
     public void showHelp() {
+        if (isGuiMode()) {
+            println("Spot: Here are the commands I understand:");
+            for (String[] cmd : HELP_COMMANDS) {
+                println("  " + cmd[0] + " - " + cmd[1]);
+            }
+            return;
+        }
         int lineWidth = borderLine.length();
         int cmdWidth = 36;
         int descWidth = lineWidth - cmdWidth - 2;
         String rowFormat = "  %-" + cmdWidth + "s  %-" + descWidth + "s";
 
-        String[][] commands = {
-            { "list", "show all tasks" },
-            { "cheer", "show a random motivational quote" },
-            { "find <keyword>", "search tasks by keyword" },
-            { "todo <description>", "add a todo task" },
-            { "deadline <desc> /by <date>", "add a deadline" },
-            { "event <desc> /from <start> /to <end>", "add an event" },
-            { "on <date>", "list deadlines on that date" },
-            { "mark <number>", "mark a task as done" },
-            { "unmark <number>", "mark task as not done" },
-            { "delete <number>", "remove a task" },
-            { "help", "show this list" },
-            { "bye", "exit (See you later!)" }
-        };
-
         println(borderLine + "\n");
         println(String.format(rightAlignFormat, "Spot: Here are the commands I understand:"));
         println(String.format(rightAlignFormat, ""));
-        for (String[] cmd : commands) {
+        for (String[] cmd : HELP_COMMANDS) {
             String line = String.format(rowFormat, cmd[0], cmd[1]);
             println(String.format(rightAlignFormat, line));
         }
@@ -270,6 +328,10 @@ public class Ui {
      * @param quote the quote to display (e.g. from cheer command)
      */
     public void showCheer(String quote) {
+        if (isGuiMode()) {
+            println(quote);
+            return;
+        }
         String coloredQuote = ANSI_CYAN + quote + ANSI_RESET;
         println(
                 borderLine + "\n\n" + String.format(rightAlignFormat, coloredQuote) + "\n" + borderLine + "\n");
@@ -283,12 +345,21 @@ public class Ui {
 
     /** Prints one message line between top and bottom borders. */
     private void printFramedMessage(String message) {
+        if (isGuiMode()) {
+            println(message);
+            return;
+        }
         println(
                 borderLine + "\n\n" + String.format(rightAlignFormat, message) + "\n" + borderLine + "\n");
     }
 
     /** Prints header and content lines between borders. */
     private void printFramedTwoLineMessage(String header, String content) {
+        if (isGuiMode()) {
+            println(header);
+            println(content);
+            return;
+        }
         println(
                 borderLine + "\n\n"
                         + String.format(rightAlignFormat, header) + "\n"
@@ -299,6 +370,12 @@ public class Ui {
 
     /** Prints header, content, and footer lines between borders (e.g. task added/deleted). */
     private void printFramedThreeLineMessage(String header, String content, String footer) {
+        if (isGuiMode()) {
+            println("Spot: " + header);
+            println(content);
+            println(footer);
+            return;
+        }
         println(
                 borderLine + "\n\n"
                         + String.format(rightAlignFormat, "Spot: " + header) + "\n"
