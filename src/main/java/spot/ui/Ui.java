@@ -22,12 +22,22 @@ public class Ui {
     /** ANSI escape to reset formatting. */
     private static final String ANSI_RESET = "\033[0m";
 
-    private static final String LOGO =
-            "  ____    ____    ____   _____ \n"
-                    + " / ___|  |  _ \\  / _  \\ |_   _|\n"
-                    + " \\___ \\  | |_) || | | |   | |  \n"
-                    + "  ___) | |  __/ | |_| |   | |  \n"
-                    + " |____/  |_|     \\___/    |_|  \n";
+    // private static final String LOGO =
+    //         "  ____    ____    ____   _____ \n"
+    //                 + " / ___|  |  _ \\  / _  \\ |_   _|\n"
+    //                 + " \\___ \\  | |_) ||   |   | |   | |  \n"
+    //                 + "  ___) | |  __/ | |_   | |     | |  \n"
+    //                 + " |____/  |_|     \\___/    |_|  \n";
+
+    // private static final String LOGO =
+    //         " ______________________________________\n"
+    //         + "/   _____/\\______   \\_____  \\__    ___/\n"
+    //         + "\\_____  \\  |     ___//   |   \\|    |   \n"
+    //         + "/        \\ |    |   /    |    \\    |   \n"
+    //         + "/_______  / |____|   \\_______  /____|   \n"
+    //         + "        \\/                   \\/         \n";
+
+    private static final String LOGO = "SPOT the Dog \n";
 
     private static final String SPOT_ASCII =
             "  __      _\n"

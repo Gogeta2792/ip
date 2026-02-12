@@ -23,8 +23,9 @@ public class DialogBox extends HBox {
             "-fx-background-color: #e5e5e5; -fx-background-radius: " + BUBBLE_RADIUS + "px; "
             + "-fx-padding: " + BUBBLE_PADDING + "px " + (BUBBLE_PADDING + 4) + "px;";
     private static final String SPOT_BUBBLE_STYLE =
-            "-fx-background-color: #cce5ff; -fx-background-radius: " + BUBBLE_RADIUS + "px; "
-            + "-fx-padding: " + BUBBLE_PADDING + "px " + (BUBBLE_PADDING + 4) + "px;";
+            "-fx-background-color: #03a2e9; -fx-text-fill: white; -fx-background-radius: "
+            + BUBBLE_RADIUS + "px; " + "-fx-padding: " + BUBBLE_PADDING + "px "
+            + (BUBBLE_PADDING + 4) + "px;";
 
     private final Label text;
     private final ImageView displayPicture;

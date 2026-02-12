@@ -7,6 +7,7 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
@@ -26,6 +27,7 @@ public class Main extends Application {
     private VBox dialogContainer;
     private TextField userInput;
     private Button sendButton;
+    private Label hintLabel;
     private Scene scene;
 
     private final Image userImage = loadImage("/images/DaUser.png");
@@ -52,9 +54,12 @@ public class Main extends Application {
         scrollPane.setContent(dialogContainer);
         userInput = new TextField();
         sendButton = new Button("Send");
+        hintLabel = new Label("Type a command or say help");
+        hintLabel.setStyle("-fx-text-fill: #666; -fx-font-size: 12px;");
 
         AnchorPane mainLayout = new AnchorPane();
-        mainLayout.getChildren().addAll(scrollPane, userInput, sendButton);
+        mainLayout.setStyle("-fx-background-color: #f0f0f0;");
+        mainLayout.getChildren().addAll(scrollPane, hintLabel, userInput, sendButton);
 
         scene = new Scene(mainLayout);
 
@@ -69,17 +74,22 @@ public class Main extends Application {
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         scrollPane.setVvalue(1.0);
         scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background-color: transparent;");
         dialogContainer.setPrefHeight(Region.USE_COMPUTED_SIZE);
         dialogContainer.setSpacing(12);
         dialogContainer.setPadding(new Insets(10));
         userInput.setPrefWidth(325.0);
         sendButton.setPrefWidth(55.0);
+        userInput.setStyle("-fx-background-color: white; -fx-border-color: #ccc; "
+                + "-fx-border-width: 1px 0 0 0; -fx-border-radius: 0;");
 
         AnchorPane.setTopAnchor(scrollPane, 1.0);
         AnchorPane.setBottomAnchor(sendButton, 1.0);
         AnchorPane.setRightAnchor(sendButton, 1.0);
         AnchorPane.setLeftAnchor(userInput, 1.0);
         AnchorPane.setBottomAnchor(userInput, 1.0);
+        AnchorPane.setBottomAnchor(hintLabel, 36.0);
+        AnchorPane.setLeftAnchor(hintLabel, 12.0);
 
         sendButton.setOnMouseClicked((event) -> handleUserInput());
         userInput.setOnAction((event) -> handleUserInput());
@@ -107,6 +117,7 @@ public class Main extends Application {
             return;
         }
         String spotText = spot.getResponse(userText);
+        hintLabel.setVisible(false);
         dialogContainer.getChildren().addAll(
                 new Separator(),
                 DialogBox.getUserDialog(userText, userImage),
