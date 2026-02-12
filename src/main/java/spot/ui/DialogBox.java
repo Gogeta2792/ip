@@ -32,22 +32,24 @@ public class DialogBox extends HBox {
 
     private DialogBox(String s, Image img, boolean isUser) {
         text = new Label(s);
-        displayPicture = new ImageView(img);
-
         text.setWrapText(true);
         text.setMaxWidth(280);
         text.setStyle(isUser ? USER_BUBBLE_STYLE : SPOT_BUBBLE_STYLE);
 
-        displayPicture.setFitWidth(AVATAR_SIZE);
-        displayPicture.setFitHeight(AVATAR_SIZE);
-        displayPicture.setPreserveRatio(true);
-
-        double radius = AVATAR_SIZE / 2.0;
-        Circle clip = new Circle(radius, radius, radius);
-        displayPicture.setClip(clip);
-
-        this.setSpacing(10);
-        this.getChildren().addAll(text, displayPicture);
+        if (img != null) {
+            displayPicture = new ImageView(img);
+            displayPicture.setFitWidth(AVATAR_SIZE);
+            displayPicture.setFitHeight(AVATAR_SIZE);
+            displayPicture.setPreserveRatio(true);
+            double radius = AVATAR_SIZE / 2.0;
+            Circle clip = new Circle(radius, radius, radius);
+            displayPicture.setClip(clip);
+            this.setSpacing(10);
+            this.getChildren().addAll(text, displayPicture);
+        } else {
+            displayPicture = null;
+            this.getChildren().add(text);
+        }
     }
 
     /**
@@ -67,9 +69,9 @@ public class DialogBox extends HBox {
         return db;
     }
 
-    /** Spot on the right: text then avatar, right-aligned, light blue bubble. */
-    public static DialogBox getSpotDialog(String text, Image img) {
-        var db = new DialogBox(text, img, false);
+    /** Spot on the right: text only (no avatar; Spot is shown in header), right-aligned, blue bubble. */
+    public static DialogBox getSpotDialog(String text) {
+        var db = new DialogBox(text, null, false);
         db.setAlignment(Pos.TOP_RIGHT);
         return db;
     }

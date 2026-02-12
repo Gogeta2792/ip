@@ -5,6 +5,7 @@ import java.io.InputStream;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -12,9 +13,11 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import spot.ui.DialogBox;
 
@@ -23,6 +26,9 @@ import spot.ui.DialogBox;
  */
 public class Main extends Application {
 
+    private static final double HEADER_AVATAR_SIZE = 56.0;
+
+    private VBox headerPane;
     private ScrollPane scrollPane;
     private VBox dialogContainer;
     private TextField userInput;
@@ -47,8 +53,31 @@ public class Main extends Application {
         return img;
     }
 
+    /**
+     * Builds the fixed top header with circular Spot avatar and name "Spot the Dog".
+     */
+    private VBox createHeader() {
+        ImageView spotAvatar = new ImageView(spotImage);
+        spotAvatar.setFitWidth(HEADER_AVATAR_SIZE);
+        spotAvatar.setFitHeight(HEADER_AVATAR_SIZE);
+        spotAvatar.setPreserveRatio(true);
+        double radius = HEADER_AVATAR_SIZE / 2.0;
+        Circle clip = new Circle(radius, radius, radius);
+        spotAvatar.setClip(clip);
+
+        Label nameLabel = new Label("Spot the Dog");
+        nameLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #333;");
+
+        VBox header = new VBox(4);
+        header.setAlignment(Pos.CENTER);
+        header.setStyle("-fx-background-color: white; -fx-padding: 8px;");
+        header.getChildren().addAll(spotAvatar, nameLabel);
+        return header;
+    }
+
     @Override
     public void start(Stage stage) {
+        headerPane = createHeader();
         scrollPane = new ScrollPane();
         dialogContainer = new VBox();
         scrollPane.setContent(dialogContainer);
@@ -59,7 +88,7 @@ public class Main extends Application {
 
         AnchorPane mainLayout = new AnchorPane();
         mainLayout.setStyle("-fx-background-color: #f0f0f0;");
-        mainLayout.getChildren().addAll(scrollPane, hintLabel, userInput, sendButton);
+        mainLayout.getChildren().addAll(headerPane, scrollPane, hintLabel, userInput, sendButton);
 
         scene = new Scene(mainLayout);
 
@@ -69,12 +98,26 @@ public class Main extends Application {
         stage.setMinWidth(400.0);
 
         mainLayout.setPrefSize(400.0, 600.0);
-        scrollPane.setPrefSize(385, 535);
+        double headerHeight = 90.0;
+        double bottomHeight = 50.0;
+
+        headerPane.setPrefHeight(headerHeight);
+        headerPane.setMinHeight(headerHeight);
+        AnchorPane.setTopAnchor(headerPane, 0.0);
+        AnchorPane.setLeftAnchor(headerPane, 0.0);
+        AnchorPane.setRightAnchor(headerPane, 0.0);
+
+        scrollPane.setPrefSize(400.0, 600.0 - headerHeight - bottomHeight);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         scrollPane.setVvalue(1.0);
         scrollPane.setFitToWidth(true);
         scrollPane.setStyle("-fx-background-color: transparent;");
+        AnchorPane.setTopAnchor(scrollPane, headerHeight);
+        AnchorPane.setBottomAnchor(scrollPane, bottomHeight);
+        AnchorPane.setLeftAnchor(scrollPane, 0.0);
+        AnchorPane.setRightAnchor(scrollPane, 0.0);
+
         dialogContainer.setPrefHeight(Region.USE_COMPUTED_SIZE);
         dialogContainer.setSpacing(12);
         dialogContainer.setPadding(new Insets(10));
@@ -83,7 +126,6 @@ public class Main extends Application {
         userInput.setStyle("-fx-background-color: white; -fx-border-color: #ccc; "
                 + "-fx-border-width: 1px 0 0 0; -fx-border-radius: 0;");
 
-        AnchorPane.setTopAnchor(scrollPane, 1.0);
         AnchorPane.setBottomAnchor(sendButton, 1.0);
         AnchorPane.setRightAnchor(sendButton, 1.0);
         AnchorPane.setLeftAnchor(userInput, 1.0);
@@ -99,7 +141,7 @@ public class Main extends Application {
         String welcome = spot.getWelcomeMessage();
         if (!welcome.isEmpty()) {
             dialogContainer.getChildren().addAll(
-                    DialogBox.getSpotDialog(welcome, spotImage),
+                    DialogBox.getSpotDialog(welcome),
                     new Separator()
             );
         }
@@ -121,7 +163,7 @@ public class Main extends Application {
         dialogContainer.getChildren().addAll(
                 new Separator(),
                 DialogBox.getUserDialog(userText, userImage),
-                DialogBox.getSpotDialog(spotText, spotImage),
+                DialogBox.getSpotDialog(spotText),
                 new Separator()
         );
         userInput.clear();
