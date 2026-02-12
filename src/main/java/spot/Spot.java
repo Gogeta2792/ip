@@ -129,7 +129,7 @@ public class Spot {
             break;
         case UNKNOWN:
             ui.showFramedMessage(
-                    "Spot: I don't know what you mean :( Type \"help\" to view a list of functions.");
+                    "I don't know what you mean :( Type \"help\" to view a list of functions.");
             break;
         default:
             break;
@@ -207,7 +207,7 @@ public class Spot {
         LocalDate queriedDate = Parser.parseDate(dateArg);
         if (queriedDate == null) {
             ui.showFramedMessage(
-                    "Spot: I couldn't understand that date. Use yyyy-mm-dd or d/M/yyyy "
+                    "I couldn't understand that date. Use yyyy-mm-dd or d/M/yyyy "
                             + "(e.g. 2019-12-02 or 2/12/2019).");
             return;
         }
@@ -227,13 +227,13 @@ public class Spot {
         try {
             oneBasedIndex = Integer.parseInt(parsedCommand.argument() == null ? "" : parsedCommand.argument());
         } catch (NumberFormatException numberFormatException) {
-            ui.showFramedMessage("Spot: You have to give me the task number!");
+            ui.showFramedMessage("You have to give me the task number!");
             return;
         }
 
         int taskIndex = oneBasedIndex - 1;
         if (taskIndex < 0 || taskIndex >= tasks.size()) {
-            ui.showFramedMessage("Spot: That task doesn't exist!");
+            ui.showFramedMessage("That task doesn't exist!");
             return;
         }
 
@@ -258,13 +258,13 @@ public class Spot {
         try {
             oneBasedIndex = Integer.parseInt(parsedCommand.argument() == null ? "" : parsedCommand.argument());
         } catch (NumberFormatException numberFormatException) {
-            ui.showFramedMessage("Spot: You have to give me the task number!");
+            ui.showFramedMessage("You have to give me the task number!");
             return;
         }
 
         int taskIndex = oneBasedIndex - 1;
         if (taskIndex < 0 || taskIndex >= tasks.size()) {
-            ui.showFramedMessage("Spot: That task doesn't exist!");
+            ui.showFramedMessage("That task doesn't exist!");
             return;
         }
 
@@ -282,7 +282,7 @@ public class Spot {
         if (parsedCommand.type() == CommandType.TODO) {
             String arg = parsedCommand.argument() == null ? "" : parsedCommand.argument();
             if (arg.isEmpty()) {
-                ui.showFramedMessage("Spot: You can't todo nothing..");
+                ui.showFramedMessage("You can't todo nothing..");
                 return;
             }
         }
@@ -290,7 +290,7 @@ public class Spot {
         Task newTask = Parser.createTask(parsedCommand);
         if (newTask == null) {
             String errorMsg = Parser.getAddTaskErrorMessage(parsedCommand.type());
-            ui.showFramedMessage("Spot: " + errorMsg);
+            ui.showFramedMessage(errorMsg);
             return;
         }
 
