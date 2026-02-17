@@ -143,4 +143,42 @@ class TaskListTest {
         assertTrue(onDate.contains(d1));
         assertTrue(onDate.contains(d2));
     }
+
+    // ---- findTasks() ----
+
+    /**
+     * Positive case: findTasks returns only tasks whose display string contains the keyword,
+     * and matching is case-insensitive so "REPORT" finds "submit report".
+     */
+    @Test
+    void findTasks_withMatchingKeyword_returnsMatchingTasks() {
+        Todo t1 = new Todo("read book");
+        Todo t2 = new Todo("submit report");
+        Todo t3 = new Todo("write report");
+        Event e = new Event("team meeting", "Mon 2pm", "3pm");
+        TaskList list = new TaskList(List.of(t1, t2, t3, e));
+
+        List<Task> report = list.findTasks("report");
+        assertEquals(2, report.size());
+        assertTrue(report.stream().anyMatch(t -> t.getDescription().equals("submit report")));
+        assertTrue(report.stream().anyMatch(t -> t.getDescription().equals("write report")));
+
+        List<Task> meeting = list.findTasks("MEETING");
+        assertEquals(1, meeting.size());
+        assertEquals("team meeting", meeting.get(0).getDescription());
+    }
+
+    /**
+     * Negative case: findTasks with null, empty, or non-matching keyword returns an empty list
+     * and does not throw.
+     */
+    @Test
+    void findTasks_nullEmptyOrNoMatch_returnsEmptyList() {
+        TaskList list = new TaskList(List.of(new Todo("only task")));
+
+        assertTrue(list.findTasks(null).isEmpty());
+        assertTrue(list.findTasks("").isEmpty());
+        assertTrue(list.findTasks("   ").isEmpty());
+        assertTrue(list.findTasks("nonexistent").isEmpty());
+    }
 }

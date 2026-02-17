@@ -97,6 +97,31 @@ class ParserTest {
         assertEquals("2025-02-01", cmd.argument());
     }
 
+    /**
+     * Positive case: "find" command with a keyword is parsed as FIND with the keyword as argument.
+     */
+    @Test
+    void parse_findWithKeyword_returnsFindWithArgument() {
+        ParsedCommand cmd = Parser.parse("find report");
+        assertEquals(CommandType.FIND, cmd.type());
+        assertEquals("report", cmd.argument());
+
+        ParsedCommand cmd2 = Parser.parse("find meeting notes");
+        assertEquals(CommandType.FIND, cmd2.type());
+        assertEquals("meeting notes", cmd2.argument());
+    }
+
+    /**
+     * Negative case: "find" with no keyword yields FIND with empty argument; unknown tokens
+     * still return UNKNOWN.
+     */
+    @Test
+    void parse_findWithNoKeyword_returnsEmptyArgument() {
+        ParsedCommand cmd = Parser.parse("find");
+        assertEquals(CommandType.FIND, cmd.type());
+        assertEquals("", cmd.argument());
+    }
+
     @Test
     void parse_unknownCommand_returnsUnknown() {
         assertEquals(CommandType.UNKNOWN, Parser.parse("xyz").type());
