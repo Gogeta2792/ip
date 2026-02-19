@@ -84,8 +84,10 @@ public class Ui {
      * @param output  optional; when non-null, all showXxx output is appended here (for GUI)
      */
     public Ui(Scanner scanner, Appendable output) {
+        assert scanner != null : "scanner must not be null";
         this.borderLine = HORIZONTAL_LINE;
         int lineWidth = borderLine.length();
+        assert lineWidth > 0 : "border line width must be positive";
         this.rightAlignFormat = "%" + lineWidth + "s";
         this.scanner = scanner;
         this.output = output;
@@ -223,6 +225,7 @@ public class Ui {
      * @param queriedDate  the date that was queried (for display)
      */
     public void showDeadlinesOn(List<Task> tasksOnDate, LocalDate queriedDate) {
+        assert queriedDate != null : "queried date must not be null";
         if (isGuiMode()) {
             if (tasksOnDate.isEmpty()) {
                 println("No deadlines on " + queriedDate.format(DateTimeFormats.DISPLAY_DATE) + ".");
@@ -256,6 +259,7 @@ public class Ui {
         if (isGuiMode()) {
             println("Here are the commands I understand:");
             for (String[] cmd : HELP_COMMANDS) {
+                assert cmd != null && cmd.length == 2 : "each help row must be [command, description]";
                 println("  " + cmd[0] + " - " + cmd[1]);
             }
             return;
@@ -269,6 +273,7 @@ public class Ui {
         println(String.format(rightAlignFormat, "Spot: Here are the commands I understand:"));
         println(String.format(rightAlignFormat, ""));
         for (String[] cmd : HELP_COMMANDS) {
+            assert cmd != null && cmd.length == 2 : "each help row must be [command, description]";
             String line = String.format(rowFormat, cmd[0], cmd[1]);
             println(String.format(rightAlignFormat, line));
         }
@@ -349,6 +354,7 @@ public class Ui {
 
     /** Builds a single-line display string for a task (e.g. "[T][X] buy milk"). */
     private String formatTask(Task task) {
+        assert task != null : "task to format must not be null";
         String statusIcon = task.isDone() ? STATUS_DONE_ICON : STATUS_NOT_DONE_ICON;
         return task.getTypeIcon() + statusIcon + " " + task.getDisplayString();
     }

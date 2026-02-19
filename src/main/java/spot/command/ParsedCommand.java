@@ -14,6 +14,7 @@ public class ParsedCommand {
      * @param argument the argument (e.g. task number, description, date); may be null
      */
     public ParsedCommand(CommandType type, String argument) {
+        assert type != null : "command type must not be null";
         this.type = type;
         this.argument = argument;
     }
