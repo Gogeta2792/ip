@@ -8,8 +8,8 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import spot.task.Deadline;
 import spot.task.Event;
@@ -41,25 +41,18 @@ public class Storage {
      */
     public List<Task> load() {
         if (Files.notExists(dataPath) || !Files.isRegularFile(dataPath)) {
-            return new ArrayList<>();
+            return List.of();
         }
-        List<Task> tasks = new ArrayList<>();
         try {
-            List<String> lines = Files.readAllLines(dataPath, StandardCharsets.UTF_8);
-            for (String line : lines) {
-                String trimmed = line.trim();
-                if (trimmed.isEmpty()) {
-                    continue;
-                }
-                Task task = parseTaskLine(trimmed);
-                if (task != null) {
-                    tasks.add(task);
-                }
-            }
+            return Files.readAllLines(dataPath, StandardCharsets.UTF_8).stream()
+                    .map(String::trim)
+                    .filter(line -> !line.isEmpty())
+                    .map(Storage::parseTaskLine)
+                    .filter(Objects::nonNull)
+                    .toList();
         } catch (IOException ioException) {
-            return new ArrayList<>();
+            return List.of();
         }
-        return tasks;
     }
 
     /**
@@ -82,10 +75,9 @@ public class Storage {
             if (dataPath.getParent() != null) {
                 Files.createDirectories(dataPath.getParent());
             }
-            List<String> lines = new ArrayList<>();
-            for (Task task : tasks) {
-                lines.add(encodeTask(task));
-            }
+            List<String> lines = tasks.stream()
+                    .map(Storage::encodeTask)
+                    .toList();
             Files.write(dataPath, lines, StandardCharsets.UTF_8);
         } catch (IOException ioException) {
             // Silently ignore write errors.

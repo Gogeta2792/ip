@@ -3,8 +3,10 @@ package spot.ui;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.IntStream;
 
 import spot.task.Task;
 import spot.task.TaskList;
@@ -162,10 +164,8 @@ public class Ui {
                 println("Your list is empty. Add a task to get started!");
             } else {
                 println("Here are your tasks, good luck!");
-                for (int i = 0; i < tasks.size(); i++) {
-                    Task task = tasks.get(i);
-                    println((i + 1) + ". " + formatTask(task));
-                }
+                IntStream.range(0, tasks.size())
+                        .forEach(i -> println((i + 1) + ". " + formatTask(tasks.get(i))));
             }
             return;
         }
@@ -174,11 +174,9 @@ public class Ui {
             println(String.format(rightAlignFormat, "Spot: Your list is empty. Add a task to get started!"));
         } else {
             println(String.format(rightAlignFormat, "Spot: Here are your tasks, good luck!"));
-            for (int i = 0; i < tasks.size(); i++) {
-                Task task = tasks.get(i);
-                String taskLine = (i + 1) + "." + formatTask(task);
-                println(String.format(rightAlignFormat, taskLine));
-            }
+            IntStream.range(0, tasks.size())
+                    .forEach(i -> println(String.format(rightAlignFormat,
+                            (i + 1) + "." + formatTask(tasks.get(i)))));
         }
         println("\n" + borderLine + "\n");
     }
@@ -194,10 +192,8 @@ public class Ui {
                 println("No matching tasks in your list.");
             } else {
                 println("Here are the matching tasks in your list:");
-                for (int i = 0; i < matching.size(); i++) {
-                    Task task = matching.get(i);
-                    println((i + 1) + ". " + formatTask(task));
-                }
+                IntStream.range(0, matching.size())
+                        .forEach(i -> println((i + 1) + ". " + formatTask(matching.get(i))));
             }
             return;
         }
@@ -207,11 +203,9 @@ public class Ui {
         } else {
             println(String.format(rightAlignFormat, "Here are the matching tasks in your list:"));
             println("");
-            for (int i = 0; i < matching.size(); i++) {
-                Task task = matching.get(i);
-                String taskLine = (i + 1) + "." + formatTask(task);
-                println(String.format(rightAlignFormat, taskLine));
-            }
+            IntStream.range(0, matching.size())
+                    .forEach(i -> println(String.format(rightAlignFormat,
+                            (i + 1) + "." + formatTask(matching.get(i)))));
         }
         println("\n" + borderLine + "\n");
     }
@@ -228,10 +222,8 @@ public class Ui {
                 println("No deadlines on " + queriedDate.format(DateTimeFormats.DISPLAY_DATE) + ".");
             } else {
                 println("Deadlines on " + queriedDate.format(DateTimeFormats.DISPLAY_DATE) + ":");
-                for (int i = 0; i < tasksOnDate.size(); i++) {
-                    Task task = tasksOnDate.get(i);
-                    println((i + 1) + ". " + formatTask(task));
-                }
+                IntStream.range(0, tasksOnDate.size())
+                        .forEach(i -> println((i + 1) + ". " + formatTask(tasksOnDate.get(i))));
             }
             return;
         }
@@ -242,11 +234,9 @@ public class Ui {
         } else {
             println(String.format(rightAlignFormat,
                     "Spot: Deadlines on " + queriedDate.format(DateTimeFormats.DISPLAY_DATE) + ":"));
-            for (int i = 0; i < tasksOnDate.size(); i++) {
-                Task task = tasksOnDate.get(i);
-                String taskLine = (i + 1) + "." + formatTask(task);
-                println(String.format(rightAlignFormat, taskLine));
-            }
+            IntStream.range(0, tasksOnDate.size())
+                    .forEach(i -> println(String.format(rightAlignFormat,
+                            (i + 1) + "." + formatTask(tasksOnDate.get(i)))));
         }
         println("\n" + borderLine + "\n");
     }
@@ -255,9 +245,7 @@ public class Ui {
     public void showHelp() {
         if (isGuiMode()) {
             println("Here are the commands I understand:");
-            for (String[] cmd : HELP_COMMANDS) {
-                println("  " + cmd[0] + " - " + cmd[1]);
-            }
+            Arrays.stream(HELP_COMMANDS).forEach(cmd -> println("  " + cmd[0] + " - " + cmd[1]));
             return;
         }
         int lineWidth = borderLine.length();
@@ -268,10 +256,10 @@ public class Ui {
         println(borderLine + "\n");
         println(String.format(rightAlignFormat, "Spot: Here are the commands I understand:"));
         println(String.format(rightAlignFormat, ""));
-        for (String[] cmd : HELP_COMMANDS) {
+        Arrays.stream(HELP_COMMANDS).forEach(cmd -> {
             String line = String.format(rowFormat, cmd[0], cmd[1]);
             println(String.format(rightAlignFormat, line));
-        }
+        });
         println("\n" + borderLine + "\n");
     }
 

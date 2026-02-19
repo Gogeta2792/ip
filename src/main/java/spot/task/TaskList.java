@@ -93,13 +93,9 @@ public class TaskList {
             return List.of();
         }
         String lowerKeyword = keyword.toLowerCase();
-        List<Task> matching = new ArrayList<>();
-        for (Task task : tasks) {
-            if (task.getDisplayString().toLowerCase().contains(lowerKeyword)) {
-                matching.add(task);
-            }
-        }
-        return matching;
+        return tasks.stream()
+                .filter(task -> task.getDisplayString().toLowerCase().contains(lowerKeyword))
+                .toList();
     }
 
     /**
@@ -109,14 +105,8 @@ public class TaskList {
      * @return list of matching deadline tasks (may be empty)
      */
     public List<Task> getDeadlinesOn(LocalDate date) {
-        List<Task> onDate = new ArrayList<>();
-        for (Task task : tasks) {
-            if (task instanceof Deadline deadline) {
-                if (deadline.getBy().toLocalDate().equals(date)) {
-                    onDate.add(task);
-                }
-            }
-        }
-        return onDate;
+        return tasks.stream()
+                .filter(task -> task instanceof Deadline d && d.getBy().toLocalDate().equals(date))
+                .toList();
     }
 }
