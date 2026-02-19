@@ -13,6 +13,7 @@ public abstract class Task {
      * @param description task description (non-null)
      */
     protected Task(String description) {
+        assert description != null : "task description must not be null";
         this.description = description;
         this.done = false;
     }

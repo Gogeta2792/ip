@@ -94,6 +94,7 @@ public class Spot {
      * @return true if the command was "bye" (caller should exit), false otherwise
      */
     public boolean runOneCommand(String trimmedInput) {
+        assert trimmedInput != null && !trimmedInput.isEmpty() : "runOneCommand expects non-empty trimmed input";
         ParsedCommand parsedCommand = Parser.parse(trimmedInput);
 
         switch (parsedCommand.type()) {
@@ -182,6 +183,7 @@ public class Spot {
         if (quotes.isEmpty()) {
             quote = "Keep going – even the best programmers started out writing 'Hello World'!";
         } else {
+            assert !quotes.isEmpty() : "random index only used when quotes is non-empty";
             quote = quotes.get(new Random().nextInt(quotes.size()));
         }
         ui.showCheer(quote);
@@ -236,6 +238,7 @@ public class Spot {
             ui.showFramedMessage("That task doesn't exist!");
             return;
         }
+        assert taskIndex >= 0 && taskIndex < tasks.size() : "task index must be valid after range check";
 
         Task task = tasks.get(taskIndex);
         task.setDone(markAsDone);
@@ -267,6 +270,7 @@ public class Spot {
             ui.showFramedMessage("That task doesn't exist!");
             return;
         }
+        assert taskIndex >= 0 && taskIndex < tasks.size() : "task index must be valid after range check";
 
         Task removed = tasks.remove(taskIndex);
         ui.showTaskDeleted(removed, tasks.size());
@@ -293,6 +297,7 @@ public class Spot {
             ui.showFramedMessage(errorMsg);
             return;
         }
+        assert newTask != null : "newTask must be non-null when adding after createTask success";
 
         tasks.add(newTask);
         ui.showTaskAdded(newTask, tasks.size());
