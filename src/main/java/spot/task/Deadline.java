@@ -19,6 +19,7 @@ public class Deadline extends Task {
      */
     public Deadline(String description, LocalDateTime by) {
         super(description);
+        assert by != null : "deadline due date-time must not be null";
         this.by = by;
     }
 
