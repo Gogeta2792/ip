@@ -31,6 +31,7 @@ public class Storage {
      * @param filePath path to the data file (e.g. "data/spot.txt")
      */
     public Storage(String filePath) {
+        assert filePath != null : "storage file path must not be null";
         this.dataPath = Paths.get(filePath);
     }
 
@@ -69,6 +70,7 @@ public class Storage {
      * @param tasks the task list to persist
      */
     public void save(TaskList tasks) {
+        assert tasks != null : "task list to save must not be null";
         save(tasks.asUnmodifiableList());
     }
 
@@ -78,6 +80,7 @@ public class Storage {
      * @param tasks the list of tasks to write
      */
     private void save(List<Task> tasks) {
+        assert tasks != null : "task list to write must not be null";
         try {
             if (dataPath.getParent() != null) {
                 Files.createDirectories(dataPath.getParent());
@@ -109,11 +112,13 @@ public class Storage {
             boolean isDone = (done == 1);
 
             if ("T".equals(type) && parts.length == 3) {
+                assert parts.length >= 3 : "todo line must have at least type, done, description";
                 Todo todo = new Todo(parts[2].trim());
                 todo.setDone(isDone);
                 return todo;
             }
             if ("D".equals(type) && parts.length == 4) {
+                assert parts.length >= 4 : "deadline line must have type, done, description, by";
                 String byStr = parts[3].trim();
                 LocalDateTime by;
                 if (byStr.contains("T")) {
@@ -126,6 +131,7 @@ public class Storage {
                 return deadline;
             }
             if ("E".equals(type) && parts.length == 5) {
+                assert parts.length >= 5 : "event line must have type, done, description, from, to";
                 Event event = new Event(parts[2].trim(), parts[3].trim(), parts[4].trim());
                 event.setDone(isDone);
                 return event;
@@ -143,6 +149,7 @@ public class Storage {
      * @return the line string, or empty string for unknown task types
      */
     private static String encodeTask(Task task) {
+        assert task != null : "task to encode must not be null";
         int done = task.isDone() ? 1 : 0;
         if (task instanceof Todo) {
             return "T" + STORAGE_DELIMITER + done + STORAGE_DELIMITER + task.getDescription();

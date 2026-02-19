@@ -34,6 +34,7 @@ public class Parser {
      * @return the parsed command (type UNKNOWN if unrecognized)
      */
     public static ParsedCommand parse(String trimmedInput) {
+        assert trimmedInput != null : "trimmed input must not be null";
         if (trimmedInput.equalsIgnoreCase(CMD_BYE)) {
             return new ParsedCommand(CommandType.BYE, null);
         }
@@ -117,6 +118,7 @@ public class Parser {
      * @return the created task, or null if the argument format is invalid
      */
     public static Task createTask(ParsedCommand parsedCommand) {
+        assert parsedCommand != null : "parsed command must not be null";
         String argument = parsedCommand.argument() == null ? "" : parsedCommand.argument();
         return switch (parsedCommand.type()) {
         case TODO, ADD -> argument.isEmpty() ? null : new Todo(argument);
@@ -139,6 +141,8 @@ public class Parser {
             if (fromIndex < 0 || toIndex < 0 || toIndex <= fromIndex) {
                 yield null;
             }
+            assert fromIndex + 7 <= toIndex && toIndex + 5 <= argument.length()
+                    : "event /from and /to indices must be within argument bounds";
             String description = argument.substring(0, fromIndex).trim();
             String from = argument.substring(fromIndex + 7, toIndex).trim();
             String to = argument.substring(toIndex + 5).trim();
