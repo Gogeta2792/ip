@@ -3,6 +3,7 @@ package spot.ui;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -221,10 +222,10 @@ public class Ui {
     public void showHelp() {
         if (isGuiMode()) {
             println("Here are the commands I understand:");
-            for (String[] cmd : HELP_COMMANDS) {
+            Arrays.stream(HELP_COMMANDS).forEach(cmd -> {
                 assert cmd != null && cmd.length == 2 : "each help row must be [command, description]";
                 println("  " + cmd[0] + " - " + cmd[1]);
-            }
+            });
             return;
         }
         int lineWidth = borderLine.length();
@@ -234,11 +235,11 @@ public class Ui {
         println(borderLine + "\n");
         println(String.format(rightAlignFormat, "Spot: Here are the commands I understand:"));
         println(String.format(rightAlignFormat, ""));
-        for (String[] cmd : HELP_COMMANDS) {
+        Arrays.stream(HELP_COMMANDS).forEach(cmd -> {
             assert cmd != null && cmd.length == 2 : "each help row must be [command, description]";
             String line = String.format(rowFormat, cmd[0], cmd[1]);
             println(String.format(rightAlignFormat, line));
-        }
+        });
         println("\n" + borderLine + "\n");
     }
 

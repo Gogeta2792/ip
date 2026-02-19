@@ -5,9 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Loads motivational quotes from a plain text file (one quote per line).
@@ -27,17 +25,16 @@ public final class CheerQuotes {
     public static List<String> load(String filePath) {
         Path path = Paths.get(filePath);
         if (!Files.isRegularFile(path)) {
-            return new ArrayList<>();
+            return List.of();
         }
         try {
-            return Files.readAllLines(path, StandardCharsets.UTF_8)
-                    .stream()
+            return Files.readAllLines(path, StandardCharsets.UTF_8).stream()
                     .map(String::trim)
                     .filter(line -> !line.isEmpty())
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (IOException ignored) {
             // File missing or unreadable; return empty list.
-            return new ArrayList<>();
+            return List.of();
         }
     }
 }
