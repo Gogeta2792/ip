@@ -114,10 +114,8 @@ public class TaskList {
     public List<Task> getDeadlinesOn(LocalDate date) {
         List<Task> onDate = new ArrayList<>();
         for (Task task : tasks) {
-            if (task instanceof Deadline deadline) {
-                if (deadline.getBy().toLocalDate().equals(date)) {
-                    onDate.add(task);
-                }
+            if (task instanceof Deadline deadline && deadline.getBy().toLocalDate().equals(date)) {
+                onDate.add(task);
             }
         }
         return onDate;

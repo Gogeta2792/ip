@@ -36,6 +36,7 @@ public final class CheerQuotes {
                     .filter(line -> !line.isEmpty())
                     .collect(Collectors.toList());
         } catch (IOException ignored) {
+            // File missing or unreadable; return empty list.
             return new ArrayList<>();
         }
     }
