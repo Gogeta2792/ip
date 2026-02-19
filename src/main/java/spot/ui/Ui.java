@@ -22,22 +22,12 @@ public class Ui {
     /** ANSI escape to reset formatting. */
     private static final String ANSI_RESET = "\033[0m";
 
-    // private static final String LOGO =
-    //         "  ____    ____    ____   _____ \n"
-    //                 + " / ___|  |  _ \\  / _  \\ |_   _|\n"
-    //                 + " \\___ \\  | |_) ||   |   | |   | |  \n"
-    //                 + "  ___) | |  __/ | |_   | |     | |  \n"
-    //                 + " |____/  |_|     \\___/    |_|  \n";
-
-    // private static final String LOGO =
-    //         " ______________________________________\n"
-    //         + "/   _____/\\______   \\_____  \\__    ___/\n"
-    //         + "\\_____  \\  |     ___//   |   \\|    |   \n"
-    //         + "/        \\ |    |   /    |    \\    |   \n"
-    //         + "/_______  / |____|   \\_______  /____|   \n"
-    //         + "        \\/                   \\/         \n";
-
     private static final String LOGO = "SPOT the Dog \n";
+
+    /** Help table: command column width for console layout. */
+    private static final int HELP_CMD_WIDTH = 36;
+    /** Help table: gap between command and description columns. */
+    private static final int HELP_COLUMN_GAP = 2;
 
     private static final String SPOT_ASCII =
             "  __      _\n"
@@ -157,30 +147,11 @@ public class Ui {
      * @param tasks the task list to display
      */
     public void showList(TaskList tasks) {
-        if (isGuiMode()) {
-            if (tasks.isEmpty()) {
-                println("Your list is empty. Add a task to get started!");
-            } else {
-                println("Here are your tasks, good luck!");
-                for (int i = 0; i < tasks.size(); i++) {
-                    Task task = tasks.get(i);
-                    println((i + 1) + ". " + formatTask(task));
-                }
-            }
-            return;
-        }
-        println(borderLine + "\n");
-        if (tasks.isEmpty()) {
-            println(String.format(rightAlignFormat, "Spot: Your list is empty. Add a task to get started!"));
-        } else {
-            println(String.format(rightAlignFormat, "Spot: Here are your tasks, good luck!"));
-            for (int i = 0; i < tasks.size(); i++) {
-                Task task = tasks.get(i);
-                String taskLine = (i + 1) + "." + formatTask(task);
-                println(String.format(rightAlignFormat, taskLine));
-            }
-        }
-        println("\n" + borderLine + "\n");
+        printTaskListBlock(
+                "Your list is empty. Add a task to get started!",
+                "Here are your tasks, good luck!",
+                tasks.asUnmodifiableList()
+        );
     }
 
     /**
@@ -189,31 +160,11 @@ public class Ui {
      * @param matching list of tasks whose description matches the keyword
      */
     public void showMatchingTasks(List<Task> matching) {
-        if (isGuiMode()) {
-            if (matching.isEmpty()) {
-                println("No matching tasks in your list.");
-            } else {
-                println("Here are the matching tasks in your list:");
-                for (int i = 0; i < matching.size(); i++) {
-                    Task task = matching.get(i);
-                    println((i + 1) + ". " + formatTask(task));
-                }
-            }
-            return;
-        }
-        println(borderLine + "\n");
-        if (matching.isEmpty()) {
-            println(String.format(rightAlignFormat, "Spot: No matching tasks in your list."));
-        } else {
-            println(String.format(rightAlignFormat, "Here are the matching tasks in your list:"));
-            println("");
-            for (int i = 0; i < matching.size(); i++) {
-                Task task = matching.get(i);
-                String taskLine = (i + 1) + "." + formatTask(task);
-                println(String.format(rightAlignFormat, taskLine));
-            }
-        }
-        println("\n" + borderLine + "\n");
+        printTaskListBlock(
+                "No matching tasks in your list.",
+                "Here are the matching tasks in your list:",
+                matching
+        );
     }
 
     /**
@@ -223,28 +174,40 @@ public class Ui {
      * @param queriedDate  the date that was queried (for display)
      */
     public void showDeadlinesOn(List<Task> tasksOnDate, LocalDate queriedDate) {
+        String dateStr = queriedDate.format(DateTimeFormats.DISPLAY_DATE);
+        printTaskListBlock(
+                "No deadlines on " + dateStr + ".",
+                "Deadlines on " + dateStr + ":",
+                tasksOnDate
+        );
+    }
+
+    /**
+     * Prints a block of tasks with an empty-message or header, in GUI or bordered console style.
+     *
+     * @param emptyMessage  message when the list is empty
+     * @param headerMessage message when the list is non-empty
+     * @param taskList      tasks to display (numbered from 1)
+     */
+    private void printTaskListBlock(String emptyMessage, String headerMessage, List<Task> taskList) {
         if (isGuiMode()) {
-            if (tasksOnDate.isEmpty()) {
-                println("No deadlines on " + queriedDate.format(DateTimeFormats.DISPLAY_DATE) + ".");
+            if (taskList.isEmpty()) {
+                println(emptyMessage);
             } else {
-                println("Deadlines on " + queriedDate.format(DateTimeFormats.DISPLAY_DATE) + ":");
-                for (int i = 0; i < tasksOnDate.size(); i++) {
-                    Task task = tasksOnDate.get(i);
-                    println((i + 1) + ". " + formatTask(task));
+                println(headerMessage);
+                for (int i = 0; i < taskList.size(); i++) {
+                    println((i + 1) + ". " + formatTask(taskList.get(i)));
                 }
             }
             return;
         }
         println(borderLine + "\n");
-        if (tasksOnDate.isEmpty()) {
-            println(String.format(rightAlignFormat,
-                    "Spot: No deadlines on " + queriedDate.format(DateTimeFormats.DISPLAY_DATE) + "."));
+        if (taskList.isEmpty()) {
+            println(String.format(rightAlignFormat, "Spot: " + emptyMessage));
         } else {
-            println(String.format(rightAlignFormat,
-                    "Spot: Deadlines on " + queriedDate.format(DateTimeFormats.DISPLAY_DATE) + ":"));
-            for (int i = 0; i < tasksOnDate.size(); i++) {
-                Task task = tasksOnDate.get(i);
-                String taskLine = (i + 1) + "." + formatTask(task);
+            println(String.format(rightAlignFormat, "Spot: " + headerMessage));
+            for (int i = 0; i < taskList.size(); i++) {
+                String taskLine = (i + 1) + "." + formatTask(taskList.get(i));
                 println(String.format(rightAlignFormat, taskLine));
             }
         }
@@ -261,9 +224,8 @@ public class Ui {
             return;
         }
         int lineWidth = borderLine.length();
-        int cmdWidth = 36;
-        int descWidth = lineWidth - cmdWidth - 2;
-        String rowFormat = "  %-" + cmdWidth + "s  %-" + descWidth + "s";
+        int descWidth = lineWidth - HELP_CMD_WIDTH - HELP_COLUMN_GAP;
+        String rowFormat = "  %-" + HELP_CMD_WIDTH + "s  %-" + descWidth + "s";
 
         println(borderLine + "\n");
         println(String.format(rightAlignFormat, "Spot: Here are the commands I understand:"));

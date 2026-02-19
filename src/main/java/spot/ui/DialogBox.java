@@ -19,6 +19,10 @@ public class DialogBox extends HBox {
     private static final double AVATAR_SIZE = 48.0;
     private static final double BUBBLE_PADDING = 10.0;
     private static final double BUBBLE_RADIUS = 12.0;
+    /** Max width of the text label in the bubble. */
+    private static final double MAX_TEXT_WIDTH = 280.0;
+    /** Spacing between avatar and text in the dialog. */
+    private static final double AVATAR_TEXT_SPACING = 10.0;
     private static final String USER_BUBBLE_STYLE =
             "-fx-background-color: #e5e5e5; -fx-background-radius: " + BUBBLE_RADIUS + "px; "
             + "-fx-padding: " + BUBBLE_PADDING + "px " + (BUBBLE_PADDING + 4) + "px;";
@@ -33,7 +37,7 @@ public class DialogBox extends HBox {
     private DialogBox(String s, Image img, boolean isUser) {
         text = new Label(s);
         text.setWrapText(true);
-        text.setMaxWidth(280);
+        text.setMaxWidth(MAX_TEXT_WIDTH);
         text.setStyle(isUser ? USER_BUBBLE_STYLE : SPOT_BUBBLE_STYLE);
 
         if (img != null) {
@@ -44,7 +48,7 @@ public class DialogBox extends HBox {
             double radius = AVATAR_SIZE / 2.0;
             Circle clip = new Circle(radius, radius, radius);
             displayPicture.setClip(clip);
-            this.setSpacing(10);
+            this.setSpacing(AVATAR_TEXT_SPACING);
             this.getChildren().addAll(text, displayPicture);
         } else {
             displayPicture = null;

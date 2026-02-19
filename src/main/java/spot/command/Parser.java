@@ -176,14 +176,14 @@ public class Parser {
             LocalDate parsedDate = LocalDate.parse(trimmedInput);
             return parsedDate.atStartOfDay();
         } catch (DateTimeParseException ignored) {
-            // try next format
+            // Try next format.
         }
 
         DateTimeFormatter withTime = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
         try {
             return LocalDateTime.parse(trimmedInput, withTime);
         } catch (DateTimeParseException ignored) {
-            // try next format
+            // Try next format.
         }
 
         DateTimeFormatter dateOnly = DateTimeFormatter.ofPattern("d/M/yyyy");
@@ -191,6 +191,7 @@ public class Parser {
             LocalDate parsedDate = LocalDate.parse(trimmedInput, dateOnly);
             return parsedDate.atStartOfDay();
         } catch (DateTimeParseException ignored) {
+            // Unparseable with all supported formats.
             return null;
         }
     }

@@ -2,6 +2,7 @@ package spot;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -216,30 +217,43 @@ public class Spot {
     }
 
     /**
+     * Parses the command argument as a 1-based task index and validates it against the task list.
+     * Shows an error message and returns empty if the argument is not a number or out of range.
+     *
+     * @param argument the raw argument (e.g. "1" or "2")
+     * @return the 0-based task index, or empty if invalid
+     */
+    private OptionalInt parseAndValidateTaskIndex(String argument) {
+        String arg = argument == null ? "" : argument.trim();
+        int oneBased;
+        try {
+            oneBased = Integer.parseInt(arg);
+        } catch (NumberFormatException e) {
+            ui.showFramedMessage("You have to give me the task number!");
+            return OptionalInt.empty();
+        }
+        int index = oneBased - 1;
+        if (index < 0 || index >= tasks.size()) {
+            ui.showFramedMessage("That task doesn't exist!");
+            return OptionalInt.empty();
+        }
+        return OptionalInt.of(index);
+    }
+
+    /**
      * Handles mark or unmark: sets the task at the given 1-based index and persists.
      *
      * @param parsedCommand parsed MARK or UNMARK command with task number
      */
     private void handleMark(ParsedCommand parsedCommand) {
+        OptionalInt opt = parseAndValidateTaskIndex(parsedCommand.argument());
+        if (opt.isEmpty()) {
+            return;
+        }
+        int taskIndex = opt.getAsInt();
         boolean markAsDone = parsedCommand.type() == CommandType.MARK;
-
-        int oneBasedIndex;
-        try {
-            oneBasedIndex = Integer.parseInt(parsedCommand.argument() == null ? "" : parsedCommand.argument());
-        } catch (NumberFormatException numberFormatException) {
-            ui.showFramedMessage("You have to give me the task number!");
-            return;
-        }
-
-        int taskIndex = oneBasedIndex - 1;
-        if (taskIndex < 0 || taskIndex >= tasks.size()) {
-            ui.showFramedMessage("That task doesn't exist!");
-            return;
-        }
-
         Task task = tasks.get(taskIndex);
         task.setDone(markAsDone);
-
         if (markAsDone) {
             ui.showTaskMarked(task);
         } else {
@@ -254,20 +268,11 @@ public class Spot {
      * @param parsedCommand parsed DELETE command with task number
      */
     private void handleDelete(ParsedCommand parsedCommand) {
-        int oneBasedIndex;
-        try {
-            oneBasedIndex = Integer.parseInt(parsedCommand.argument() == null ? "" : parsedCommand.argument());
-        } catch (NumberFormatException numberFormatException) {
-            ui.showFramedMessage("You have to give me the task number!");
+        OptionalInt opt = parseAndValidateTaskIndex(parsedCommand.argument());
+        if (opt.isEmpty()) {
             return;
         }
-
-        int taskIndex = oneBasedIndex - 1;
-        if (taskIndex < 0 || taskIndex >= tasks.size()) {
-            ui.showFramedMessage("That task doesn't exist!");
-            return;
-        }
-
+        int taskIndex = opt.getAsInt();
         Task removed = tasks.remove(taskIndex);
         ui.showTaskDeleted(removed, tasks.size());
         storage.save(tasks);
