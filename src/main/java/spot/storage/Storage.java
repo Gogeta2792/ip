@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import spot.task.Deadline;
 import spot.task.Event;
@@ -22,6 +23,8 @@ import spot.task.Todo;
  */
 public class Storage {
     private static final String STORAGE_DELIMITER = " | ";
+    /** Regex to split storage lines by the delimiter (literal " | "). */
+    private static final String STORAGE_DELIMITER_REGEX = Pattern.quote(STORAGE_DELIMITER);
 
     private final Path dataPath;
 
@@ -95,7 +98,7 @@ public class Storage {
      */
     private static Task parseTaskLine(String line) {
         try {
-            String[] parts = line.split(" \\| ", -1);
+            String[] parts = line.split(STORAGE_DELIMITER_REGEX, -1);
             if (parts.length < 3) {
                 return null;
             }

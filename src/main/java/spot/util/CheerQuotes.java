@@ -33,6 +33,7 @@ public final class CheerQuotes {
                     .filter(line -> !line.isEmpty())
                     .toList();
         } catch (IOException ignored) {
+            // File missing or unreadable; return empty list.
             return List.of();
         }
     }
