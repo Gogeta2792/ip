@@ -33,8 +33,8 @@ public class Main extends Application {
     private VBox dialogContainer;
     private TextField userInput;
     private Button sendButton;
-    private Label hintLabel;
     private Scene scene;
+    private boolean firstMessageSent;
 
     private final Image userImage = loadImage("/images/DaUser.png");
     private final Image spotImage = loadImage("/images/DaSpot.png");
@@ -82,24 +82,24 @@ public class Main extends Application {
         dialogContainer = new VBox();
         scrollPane.setContent(dialogContainer);
         userInput = new TextField();
+        userInput.setPromptText("Type a command or say help");
         sendButton = new Button("Send");
-        hintLabel = new Label("Type a command or say help");
-        hintLabel.setStyle("-fx-text-fill: #666; -fx-font-size: 12px;");
 
         AnchorPane mainLayout = new AnchorPane();
         mainLayout.setStyle("-fx-background-color: #f0f0f0;");
-        mainLayout.getChildren().addAll(headerPane, scrollPane, hintLabel, userInput, sendButton);
+        mainLayout.getChildren().addAll(headerPane, scrollPane, userInput, sendButton);
 
         scene = new Scene(mainLayout);
 
         stage.setTitle("Spot");
-        stage.setResizable(false);
+        stage.getIcons().add(spotImage);
+        stage.setResizable(true);
         stage.setMinHeight(600.0);
         stage.setMinWidth(400.0);
 
         mainLayout.setPrefSize(400.0, 600.0);
         double headerHeight = 90.0;
-        double bottomHeight = 50.0;
+        double bottomHeight = 32.0;
 
         headerPane.setPrefHeight(headerHeight);
         headerPane.setMinHeight(headerHeight);
@@ -121,7 +121,6 @@ public class Main extends Application {
         dialogContainer.setPrefHeight(Region.USE_COMPUTED_SIZE);
         dialogContainer.setSpacing(12);
         dialogContainer.setPadding(new Insets(10));
-        userInput.setPrefWidth(325.0);
         sendButton.setPrefWidth(55.0);
         userInput.setStyle("-fx-background-color: white; -fx-border-color: #ccc; "
                 + "-fx-border-width: 1px 0 0 0; -fx-border-radius: 0;");
@@ -129,9 +128,8 @@ public class Main extends Application {
         AnchorPane.setBottomAnchor(sendButton, 1.0);
         AnchorPane.setRightAnchor(sendButton, 1.0);
         AnchorPane.setLeftAnchor(userInput, 1.0);
+        AnchorPane.setRightAnchor(userInput, 56.0);
         AnchorPane.setBottomAnchor(userInput, 1.0);
-        AnchorPane.setBottomAnchor(hintLabel, 36.0);
-        AnchorPane.setLeftAnchor(hintLabel, 12.0);
 
         sendButton.setOnMouseClicked((event) -> handleUserInput());
         userInput.setOnAction((event) -> handleUserInput());
@@ -158,8 +156,11 @@ public class Main extends Application {
         if (userText.isBlank()) {
             return;
         }
+        if (!firstMessageSent) {
+            firstMessageSent = true;
+            userInput.setPromptText("");
+        }
         String spotText = spot.getResponse(userText);
-        hintLabel.setVisible(false);
         dialogContainer.getChildren().addAll(
                 new Separator(),
                 DialogBox.getUserDialog(userText, userImage),
