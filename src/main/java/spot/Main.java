@@ -11,13 +11,16 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
-import javafx.scene.control.TextField;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import spot.ui.DialogBox;
 
@@ -31,12 +34,11 @@ public class Main extends Application {
     private VBox headerPane;
     private ScrollPane scrollPane;
     private VBox dialogContainer;
-    private TextField userInput;
+    private TextArea userInput;
     private Button sendButton;
     private Scene scene;
     private boolean firstMessageSent;
 
-    private final Image userImage = loadImage("/images/DaUser.png");
     private final Image spotImage = loadImage("/images/DaSpot.png");
     private final Spot spot = new Spot("data/spot.txt");
 
@@ -81,15 +83,35 @@ public class Main extends Application {
         scrollPane = new ScrollPane();
         dialogContainer = new VBox();
         scrollPane.setContent(dialogContainer);
-        userInput = new TextField();
+        userInput = new TextArea();
         userInput.setPromptText("Type a command or say help");
+        userInput.setWrapText(true);
+        userInput.setPrefRowCount(1);
+        userInput.setMaxHeight(150.0);
+        userInput.setStyle(userInput.getStyle() + " -fx-control-inner-background: white;");
         sendButton = new Button("Send");
 
         AnchorPane mainLayout = new AnchorPane();
+
+        // Invisible Text node to measure wrapped content for accurate height
+        Text textHolder = new Text();
+        textHolder.setOpacity(0);
+        textHolder.setMouseTransparent(true);
+        textHolder.setManaged(false);
+        textHolder.textProperty().bind(userInput.textProperty());
+        textHolder.fontProperty().bind(userInput.fontProperty());
+        textHolder.wrappingWidthProperty().bind(mainLayout.widthProperty().subtract(30));
+        textHolder.layoutBoundsProperty().addListener((obs, oldVal, newVal) -> {
+            double contentHeight = newVal.getHeight() + 24;
+            double inputHeight = Math.min(Math.max(contentHeight, 30), 150);
+            userInput.setPrefHeight(inputHeight);
+            AnchorPane.setBottomAnchor(scrollPane, inputHeight + 1);
+        });
         mainLayout.setStyle("-fx-background-color: #f0f0f0;");
-        mainLayout.getChildren().addAll(headerPane, scrollPane, userInput, sendButton);
+        mainLayout.getChildren().addAll(headerPane, scrollPane, userInput, sendButton, textHolder);
 
         scene = new Scene(mainLayout);
+        scene.getStylesheets().add(getClass().getResource("/styles/main.css").toExternalForm());
 
         stage.setTitle("Spot");
         stage.getIcons().add(spotImage);
@@ -99,7 +121,7 @@ public class Main extends Application {
 
         mainLayout.setPrefSize(400.0, 600.0);
         double headerHeight = 90.0;
-        double bottomHeight = 32.0;
+        double bottomHeight = 32.0; // height of input row
 
         headerPane.setPrefHeight(headerHeight);
         headerPane.setMinHeight(headerHeight);
@@ -122,17 +144,29 @@ public class Main extends Application {
         dialogContainer.setSpacing(12);
         dialogContainer.setPadding(new Insets(10));
         sendButton.setPrefWidth(55.0);
+        sendButton.setVisible(false);
         userInput.setStyle("-fx-background-color: white; -fx-border-color: #ccc; "
                 + "-fx-border-width: 1px 0 0 0; -fx-border-radius: 0;");
 
         AnchorPane.setBottomAnchor(sendButton, 1.0);
         AnchorPane.setRightAnchor(sendButton, 1.0);
         AnchorPane.setLeftAnchor(userInput, 1.0);
-        AnchorPane.setRightAnchor(userInput, 56.0);
+        AnchorPane.setRightAnchor(userInput, 1.0); // full width when button hidden
         AnchorPane.setBottomAnchor(userInput, 1.0);
 
+        userInput.textProperty().addListener((obs, oldVal, newVal) -> {
+            boolean hasText = newVal != null && !newVal.isBlank();
+            sendButton.setVisible(hasText);
+            AnchorPane.setRightAnchor(userInput, hasText ? 56.0 : 1.0);
+        });
+
+        userInput.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ENTER && !event.isShiftDown()) {
+                event.consume();
+                handleUserInput();
+            }
+        });
         sendButton.setOnMouseClicked((event) -> handleUserInput());
-        userInput.setOnAction((event) -> handleUserInput());
 
         dialogContainer.heightProperty().addListener((observable) -> scrollPane.setVvalue(1.0));
 
@@ -163,7 +197,7 @@ public class Main extends Application {
         String spotText = spot.getResponse(userText);
         dialogContainer.getChildren().addAll(
                 new Separator(),
-                DialogBox.getUserDialog(userText, userImage),
+                DialogBox.getUserDialog(userText, null),
                 DialogBox.getSpotDialog(spotText),
                 new Separator()
         );

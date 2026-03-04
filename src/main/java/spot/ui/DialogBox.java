@@ -24,10 +24,11 @@ public class DialogBox extends HBox {
     /** Spacing between avatar and text in the dialog. */
     private static final double AVATAR_TEXT_SPACING = 10.0;
     private static final String USER_BUBBLE_STYLE =
-            "-fx-background-color: #e5e5e5; -fx-background-radius: " + BUBBLE_RADIUS + "px; "
-            + "-fx-padding: " + BUBBLE_PADDING + "px " + (BUBBLE_PADDING + 4) + "px;";
-    private static final String SPOT_BUBBLE_STYLE =
             "-fx-background-color: #03a2e9; -fx-text-fill: white; -fx-background-radius: "
+            + BUBBLE_RADIUS + "px; " + "-fx-padding: " + BUBBLE_PADDING + "px "
+            + (BUBBLE_PADDING + 4) + "px;";
+    private static final String SPOT_BUBBLE_STYLE =
+            "-fx-background-color: #e5e5e5; -fx-text-fill: #333; -fx-background-radius: "
             + BUBBLE_RADIUS + "px; " + "-fx-padding: " + BUBBLE_PADDING + "px "
             + (BUBBLE_PADDING + 4) + "px;";
 
@@ -57,26 +58,26 @@ public class DialogBox extends HBox {
     }
 
     /**
-     * Flips the dialog box so the ImageView is on the left and text on the right (for User on left).
+     * Flips the dialog box so the ImageView is on the left and text on the right (for User on right).
      */
     private void flip() {
-        this.setAlignment(Pos.TOP_LEFT);
+        this.setAlignment(Pos.TOP_RIGHT);
         ObservableList<Node> tmp = FXCollections.observableArrayList(this.getChildren());
         FXCollections.reverse(tmp);
         this.getChildren().setAll(tmp);
     }
 
-    /** User on the left: avatar then text, left-aligned, gray bubble. */
+    /** User on the right: avatar then text, right-aligned, blue bubble. */
     public static DialogBox getUserDialog(String text, Image img) {
         var db = new DialogBox(text, img, true);
         db.flip();
         return db;
     }
 
-    /** Spot on the right: text only (no avatar; Spot is shown in header), right-aligned, blue bubble. */
+    /** Spot on the left: text only (no avatar; Spot is shown in header), left-aligned, grey bubble. */
     public static DialogBox getSpotDialog(String text) {
         var db = new DialogBox(text, null, false);
-        db.setAlignment(Pos.TOP_RIGHT);
+        db.setAlignment(Pos.TOP_LEFT);
         return db;
     }
 }
