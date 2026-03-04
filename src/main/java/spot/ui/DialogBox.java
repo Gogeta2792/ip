@@ -16,6 +16,9 @@ import javafx.scene.shape.Circle;
  */
 public class DialogBox extends HBox {
 
+    /** Wider max width for help output so long command lines (e.g. event) don't wrap. */
+    public static final double HELP_MAX_TEXT_WIDTH = 400.0;
+
     private static final double AVATAR_SIZE = 48.0;
     private static final double BUBBLE_PADDING = 10.0;
     private static final double BUBBLE_RADIUS = 12.0;
@@ -36,9 +39,13 @@ public class DialogBox extends HBox {
     private final ImageView displayPicture;
 
     private DialogBox(String s, Image img, boolean isUser) {
+        this(s, img, isUser, MAX_TEXT_WIDTH);
+    }
+
+    private DialogBox(String s, Image img, boolean isUser, double maxTextWidth) {
         text = new Label(s);
         text.setWrapText(true);
-        text.setMaxWidth(MAX_TEXT_WIDTH);
+        text.setMaxWidth(maxTextWidth);
         text.setStyle(isUser ? USER_BUBBLE_STYLE : SPOT_BUBBLE_STYLE);
 
         if (img != null) {
@@ -76,7 +83,17 @@ public class DialogBox extends HBox {
 
     /** Spot on the left: text only (no avatar; Spot is shown in header), left-aligned, grey bubble. */
     public static DialogBox getSpotDialog(String text) {
-        var db = new DialogBox(text, null, false);
+        return getSpotDialog(text, MAX_TEXT_WIDTH);
+    }
+
+    /**
+     * Spot dialog with custom max width (e.g. wider for help output).
+     *
+     * @param text      the message to display
+     * @param maxWidth  max width of the bubble in pixels
+     */
+    public static DialogBox getSpotDialog(String text, double maxWidth) {
+        var db = new DialogBox(text, null, false, maxWidth);
         db.setAlignment(Pos.TOP_LEFT);
         return db;
     }

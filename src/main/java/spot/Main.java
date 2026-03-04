@@ -195,10 +195,14 @@ public class Main extends Application {
             userInput.setPromptText("");
         }
         String spotText = spot.getResponse(userText);
+        boolean isHelpOutput = spotText.startsWith("Here are the commands I understand:");
+        DialogBox spotDialog = isHelpOutput
+                ? DialogBox.getSpotDialog(spotText, DialogBox.HELP_MAX_TEXT_WIDTH)
+                : DialogBox.getSpotDialog(spotText);
         dialogContainer.getChildren().addAll(
                 new Separator(),
                 DialogBox.getUserDialog(userText, null),
-                DialogBox.getSpotDialog(spotText),
+                spotDialog,
                 new Separator()
         );
         userInput.clear();
