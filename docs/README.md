@@ -56,6 +56,8 @@
 - Spot greets you and asks: *"What tasks do you have today?"*
 - Type a command (e.g. `help`) and press **Enter** or click **Send** to get started.
 
+![Spot UI](Ui.png)
+
 ---
 
 ## Core Features
